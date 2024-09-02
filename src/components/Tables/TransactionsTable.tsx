@@ -2,30 +2,33 @@
 
 import { useEffect, useState } from "react";
 import {useTransactions} from '@/hooks/useTransactions';
-import Loader from "../common/Loader";
 import BaseTableNextUI from "./BaseTableNextUI";
-import {LinkType} from "@/types/linkTypes"
+import { ColumnType} from "@/types/tableTypes"
+import { TransactionEntity } from "@/entities/transaction/_domain/types";
+import { useLogger } from "@/hooks/useLogger";
 
 const TableTransaction = () => {
 
-
+  const [linkValue, setLinkValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [filterValue, setFilterValue] = useState('');
   const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>>();
   const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
-  const { transactions, isLoading, error, total, fetchTransactions} = useTransactions(currentPage, pageSize);
-
+  const { transactions, isLoading, error, total, fetchTransactions} = useTransactions({page: currentPage, pageSize: pageSize});
+  const { logMessage } = useLogger();
   useEffect(() =>{
 
     fetchTransactions(complexFilterValue);
-  },[currentPage, pageSize, complexFilterValue])
-
-  useEffect(() => {
-
     setTotalPages(Math.ceil(total / pageSize));
-}, [total, pageSize]);
+  },[currentPage, pageSize, total, complexFilterValue])
+
+useEffect(() =>{
+  if (linkValue){
+      logMessage(`Link fetched: ${linkValue}`)
+  }    
+},[linkValue]);
 
 
 const handleDateRangeChange = (dateRangeValue: string[]|null) => {
@@ -36,6 +39,9 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
   const handleFilterChange = (filterValue: string) => {
     setFilterValue(filterValue);
 };
+const handleLinkClick = (linkValue: string) => {
+  setLinkValue(linkValue);
+};
 
 
   const handleFilterSubmit = () => {
@@ -43,13 +49,12 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
     const filterFields = {
       selectedFields: filterValue || "", 
       payment_date: dateRangeValue ? dateRangeValue : ["", ""] 
-  };
+    };
     setComplexFilterValue(filterFields);
   
-    //fetchTransactions(filterFields);
   };
 
-  const columns: { key: string; label: string; link_type?: LinkType; link?: string|((row: any) => string)  }[] = [
+  const columns: ColumnType<TransactionEntity>[] = [
     { key: 'payment_number', label: 'Payment number', link_type: "external",link: 'payment_link' },
     { key: 'payment_date', label: 'Payment date'},
     { key: 'billing_email', label: 'Billing Email'},
@@ -68,15 +73,6 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
 
   
 ];
-
-  if (error) {
-    return <div>Error loading customers {error}</div>; 
-  }
-
-  if (isLoading) {
-    return <Loader /> ;
-  }
-
 
   return (
 
@@ -97,6 +93,7 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
             onSetPageSize={setPageSize}
             onFilterChange={handleFilterChange}
             onFilterSubmit={handleFilterSubmit}
+            onLinkClick={handleLinkClick}
 
         />
 </div>
