@@ -138,11 +138,19 @@ export class UserRepository {
                             ]
         }
 
-        if (filter['created_at'] && filter['created_at'][0]){
+        if (filter['dateRange'] && filter['dateRange'][0]){
 
             whereCondition['created_at'] = {
-                gte: convertDateStringToTimeStampInSeconds(filter['created_at'][0]), 
-                lte: convertDateStringToTimeStampInSeconds(filter['created_at'][1], 'T23:59:59Z') , 
+                gte: convertDateStringToTimeStampInSeconds(filter['dateRange'][0]), 
+                lte: convertDateStringToTimeStampInSeconds(filter['dateRange'][1], 'T23:59:59Z') , 
+            };
+        }
+
+        if (filter['last_login_at'] && filter['last_login_at'][0]){
+
+            whereCondition['last_login_at'] = {
+                gte: convertDateStringToTimeStampInSeconds(filter['last_login_at'][0]), 
+                lte: convertDateStringToTimeStampInSeconds(filter['last_login_at'][1], 'T23:59:59Z') , 
             };
         }
 

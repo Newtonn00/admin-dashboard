@@ -121,7 +121,13 @@ export class CustomerRepository {
                 lte: convertDateStringToTimeStampInSeconds(filter['dateRange'][1],  'T23:59:59Z') , 
             };
         }
+        if (filter['last_login_at'] && filter['last_login_at'][0]){
 
+            whereCondition['last_login_at'] = {
+                gte: convertDateStringToTimeStampInSeconds(filter['last_login_at'][0]), 
+                lte: convertDateStringToTimeStampInSeconds(filter['last_login_at'][1],  'T23:59:59Z') , 
+            };
+        }
     
 
         if (filter["companyId"]){
