@@ -13,7 +13,7 @@ import {
     TableCell,
 } from "@nextui-org/table"
 
-import { Button, DateRangePicker, DateValue, Input, Pagination, RangeValue, Select, SelectItem } from '@nextui-org/react';
+import { Button, Chip, DateRangePicker, DateValue, Input, Pagination, RangeValue, Select, SelectItem } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loader from '../Common/Loader';
@@ -24,6 +24,7 @@ type ColorType = "default" | "primary" | "secondary" | "success" | "warning" | "
 interface BaseTableProps<T> {
     data: T[];
     columns: ColumnType<T>[];
+    totalValue?: number;
     //currentPage: number;
     pageSize: number;
     totalPages: number;
@@ -47,6 +48,7 @@ interface BaseTableProps<T> {
 const BaseTableNextUI = <T extends Record<string, any>>({
     data,
     columns,
+    totalValue,
     //currentPage,
     pageSize,
     totalPages,
@@ -124,6 +126,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                     href={row[column.link]}
                     target="_blank"
                     rel="noopener noreferrer"
+
                     onClick={(e) => {
                         
                         handleLinkClick(row[column.link as string]);                        
@@ -141,13 +144,22 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 <Link
                     className='text-blue-500 hover:underline'
                     href={typeof column.link === 'function' ? column.link(row) : column.link}
+                    
                     onClick={(e) => e.stopPropagation()}
                 >
                     {row[column.key]}
                 </Link>
             );
         }
-        return <span>{row[column.key]}</span>;
+        return  (column.cellColor ? <Chip
+                    className='rounded-md'
+                    style={{backgroundColor: `${typeof column.cellColor === 'function' ? column.cellColor(row) : column.cellColor}` }} 
+                    
+                >
+                    {row[column.key]}
+                </Chip> 
+                :
+                <p>{row[column.key]}</p>);
     }
 
 // rendering top part of table: search text, date range, page size selector
@@ -156,6 +168,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
             <>
                 <div className="flex flex-col gap-4 ">
                     <div className="flex justify-between items-center">
+                        
                         {/* <div className="flex justify-berween gap-3  items-center m-2"> 
                             <Input
                                 isClearable
@@ -201,7 +214,8 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                     
                 </div>
 
-                <div className='flex w-full justify-between'>
+                <div className='flex w-full justify-between items-center'>
+                {(totalValue && totalValue > 0) ? <Chip className='text-xs ml-4' color="primary">{`Total rows: ${totalValue}`}</Chip> : <></> }
                     {totalPages > 0 ? (
                         <div className='flex w-full justify-between'>
                         <div className="flex w-full justify-center">
@@ -288,14 +302,19 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                                 }}
                             >
                                 {columns.map((column) => (
-                                    <TableCell key={String(column.key)}>
+                                    <TableCell 
+                                        key={String(column.key)}
+                                        
+                                    >
 
                                         <div 
                                             className="truncate max-w-xs" 
                                             title={row[column.key] as unknown as string} 
-                                        >
-                                            <TableCellContent column = {column} row = {row} />    
                                             
+                                        >
+                                   
+                                            <TableCellContent column = {column} row = {row} />    
+                                
                                         </div>
                                         
                                     </TableCell>
