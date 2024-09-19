@@ -118,12 +118,13 @@ export class TransactionsRepository {
     }
     async getTransactions(page:number, pageSize:number, whereCondition: string):Promise<{data: TransactionEntity[], total: number}> {
         try{
+                            // SELECT * from events.payments 
+                // WHERE ${whereCondition} 
+                // ORDER BY payment_date DESC 
 
             const offset = (page - 1) * pageSize;
             const query = `
-                // SELECT * from events.payments 
-                // WHERE ${whereCondition} 
-                // ORDER BY payment_date DESC 
+
                 SELECT * FROM events.payments
                 WHERE ${whereCondition} 
                 QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1
