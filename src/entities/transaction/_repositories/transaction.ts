@@ -139,9 +139,10 @@ export class TransactionsRepository {
             
             const totalQuery = `
                 SELECT COUNT(*) as total
-                FROM events.payments
+                FROM 
+                (SELECT * FROM events.payments
                 WHERE ${whereCondition}
-                QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1`;
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1)`;
                 
             console.log('total query: ' + totalQuery);
 
