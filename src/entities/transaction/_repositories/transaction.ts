@@ -121,17 +121,29 @@ export class TransactionsRepository {
 
             const offset = (page - 1) * pageSize;
             const query = `
-                SELECT * from events.payments 
+                // SELECT * from events.payments 
+                // WHERE ${whereCondition} 
+                // ORDER BY payment_date DESC 
+                SELECT * FROM events.payments
                 WHERE ${whereCondition} 
-                ORDER BY payment_date DESC 
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1
+                ORDER BY created_at desc
+                
                 LIMIT @pageSize OFFSET @offset`;
+
+
+
             const options = {query: query, params: {pageSize: pageSize, offset:offset}}
             const [rows] = await bigquery.query(options);
             
             const totalQuery = `
                 SELECT COUNT(*) as total
                 FROM events.payments
-                WHERE ${whereCondition}`;
+                WHERE ${whereCondition}
+                QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1
+                ORDER BY created_at desc`;
+
+
             const [totalRows] = await bigquery.query(totalQuery);
             const total = totalRows[0].total;
 
