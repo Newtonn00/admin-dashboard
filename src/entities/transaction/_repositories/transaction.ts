@@ -133,7 +133,6 @@ export class TransactionsRepository {
                 LIMIT @pageSize OFFSET @offset`;
 
 
-            console.log('main query: ' + query);
             const options = {query: query, params: {pageSize: pageSize, offset:offset}}
             const [rows] = await bigquery.query(options);
             
@@ -144,7 +143,6 @@ export class TransactionsRepository {
                 WHERE ${whereCondition}
                 QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1)`;
                 
-            console.log('total query: ' + totalQuery);
 
             const [totalRows] = await bigquery.query(totalQuery);
             const total = totalRows[0].total;
