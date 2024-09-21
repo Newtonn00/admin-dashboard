@@ -36,9 +36,9 @@ const handleFilterChange = (filterValue: string) => {
 
 const handleStateChange = (state:string) => {
 
-    if (state){
+
        setCurrentState(state);
-    }
+    
 }
 const handleFilterSubmit = () => {
     //setCurrentPage(1); 

@@ -126,7 +126,7 @@ export class TransactionsRepository {
                             // SELECT * from events.payments 
                 // WHERE ${whereCondition} 
                 // ORDER BY payment_date DESC 
-            console
+            
             const offset = (page - 1) * pageSize;
             const query = `
 
@@ -137,7 +137,6 @@ export class TransactionsRepository {
                 
                 LIMIT @pageSize OFFSET @offset`;
 
-            console.log(query);
             const options = {query: query, params: {pageSize: pageSize, offset:offset}}
             const [rows] = await bigquery.query(options);
             
