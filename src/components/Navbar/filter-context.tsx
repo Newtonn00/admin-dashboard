@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 
 interface FilterContextProps {
 filterValue: string;
+currentState?: string;
 dateRangeValue: string[] | null;
 complexFilterValue: Record<string, any> | undefined;
 showFilters: boolean;
@@ -27,7 +28,7 @@ const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>
 const [showFilters, setShowFilters] = useState(false);
 const [showAdditionalFilters, setShowAdditionalFilters] = useState(false);
 const [currentPage, setCurrentPage] = useState(1);
-const [currentState, setCurrentState] = useState<String>("");
+const [currentState, setCurrentState] = useState("");
 
 const handleFilterChange = (filterValue: string) => {
     setFilterValue(filterValue);
@@ -83,6 +84,7 @@ const handleContextInit=() => {
 return (
     <FilterContext.Provider
     value={{ filterValue, 
+            currentState,
             dateRangeValue, 
             complexFilterValue, 
             showFilters, 

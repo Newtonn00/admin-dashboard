@@ -8,7 +8,7 @@ import { transactionStatus } from "@/entities/transaction/_domain/transactionSta
 
 const FilterComponent = () =>{
 
-    const { filterValue, dateRangeValue, showFilters, showAdditionalFilters, handleFilterChange, handleFilterSubmit, handleDateRangeChange, handleClear, handleStateChange } = useFilter();
+    const { filterValue, dateRangeValue, showFilters, showAdditionalFilters, currentState, handleFilterChange, handleFilterSubmit, handleDateRangeChange, handleClear, handleStateChange } = useFilter();
     
     const states = [ {key: "0", value: "all states"}, ...transactionStatus];
 
@@ -54,11 +54,13 @@ const FilterComponent = () =>{
                 {showAdditionalFilters && <Select
                     size='md'
                     variant = "flat"
-                    defaultSelectedKeys="0"
+                    //defaultSelectedKeys="0"
+                    selectedKeys={states.find(({value}) => value === currentState)?.key || "0"}
+                   
                     onSelectionChange={(keys) => 
 
                             {
-                                const selectedValue = states.find(({key}) => key === Array.from(keys).join(""))?.value || "";                                      
+                                const selectedValue = states.find(({key}) => key === Array.from(keys).join(""))?.value || "all states";                                      
                                 if(handleStateChange){
                                     handleStateChange(selectedValue);
                                 }
