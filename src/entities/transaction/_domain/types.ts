@@ -61,6 +61,7 @@ export interface TransactionEntity {
     payment_link: string;
     company_link: string;
     game_link: string;
+    user_link: string;
 
 
 

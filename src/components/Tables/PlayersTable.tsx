@@ -94,6 +94,7 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
 
   const columns: ColumnType<UserEntity>[] = [
 
+    { key: 'id', label: 'User ID',  link_type: 'external', link: 'user_link' },
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'E-mail' },
     { key: 'company_name', label: 'Company Name', link_type: 'external', link: 'company_link' },

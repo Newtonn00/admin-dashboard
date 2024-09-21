@@ -22,6 +22,7 @@ export type UserEntity = {
     player_name: string;
     company_link: string;
     game_link: string;
+    user_link: string;
 
     [key: string]: any;
 

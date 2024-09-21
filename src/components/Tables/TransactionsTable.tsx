@@ -117,7 +117,7 @@ const handleLinkClick = (linkValue: string) => {
     { key: 'ip', label: 'IP Address'},
     { key: 'game_name', label: 'Game Name', link_type: "external", link: 'game_link' },
   
-    { key: 'user_id', label: 'User ID' },
+    { key: 'user_id', label: 'User ID', link_type: "external", link: 'user_link' },
     // { key: 'user_name', label: 'User Name' },
     // { key: 'player_id', label: 'Player ID' },
     // { key: 'player_name', label: 'Player Name' },

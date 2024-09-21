@@ -69,8 +69,6 @@ const BaseTableNextUI = <T extends Record<string, any>>({
     const selectedColor: ColorType = "primary"
     const router = useRouter()
 
-    console.log('total',totalValue);
-
     const {complexFilterValue, setShowFilters, handleContextInit, currentPage, handleCurrentPageChange} = useFilter();
 
 // rounting by double click to interbal pages (cards)

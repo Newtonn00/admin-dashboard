@@ -43,9 +43,10 @@ export async function GET(request: NextRequest) {
 
     try {
         let data, total;
-        if (filter['gameId']){
+        if (filter['userId']){
 
-            ( {data, total}  = await userRepository.getUserById(filter['gameId']));  
+            ( data = await userRepository.getUserById(filter['userId']));  
+            total = 1;  // If userId is provided, it's a single card (player) request.
         } 
         else {
             ({data, total} = await userRepository.getUsersByFilter(page, pageSize, filter));

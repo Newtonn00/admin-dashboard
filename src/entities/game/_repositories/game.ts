@@ -39,15 +39,18 @@ export class GameRepository {
 
         return gameData
     }
-    async getGameById(gameId: string): Promise<GameEntity> {
+    async getGameById(gameId: string): Promise<GameEntity[]> {
         try{
-            const rawData = dbClient.aghanim_game.findUniqueOrThrow({
+            const rawData = await dbClient.aghanim_game.findUniqueOrThrow({
                 where: {
                     id: gameId,
                 },
+                include: {
+                    company: true
+                },
             });
             
-            return this.mapToGameType(rawData);
+            return [this.mapToGameType(rawData)];
         }    catch(error: unknown)  {
 
 

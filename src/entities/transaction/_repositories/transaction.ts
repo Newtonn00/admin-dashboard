@@ -76,7 +76,8 @@ export class TransactionsRepository {
             datahouse_user_id: data.datahouse_user_id,
             payment_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}/transactions/${data.payment_number}`,
             game_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}`,
-            company_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}`
+            company_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}`,
+            user_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}/game/players/${data.user_id}`
 
         }
     
