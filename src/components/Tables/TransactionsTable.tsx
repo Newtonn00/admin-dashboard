@@ -20,12 +20,15 @@ const TableTransaction = () => {
   const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
   const { logMessage } = useLogger();
 
-  const {complexFilterValue, setShowFilters, handleContextInit, currentPage} = useFilter();
+  const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, currentPage} = useFilter();
   const [initialized, setInitialized] = useState(false);
   useEffect(() => {
 
     if (setShowFilters)
       {setShowFilters(true);}
+    if (setShowAdditionalFilters){
+      setShowAdditionalFilters(true);
+    }
     if (handleContextInit) {
       handleContextInit();
   }
@@ -33,6 +36,9 @@ const TableTransaction = () => {
     return () => {
       if (setShowFilters)
         {setShowFilters(false);}
+      if (setShowAdditionalFilters){
+        setShowAdditionalFilters(false);
+      }
       if (handleContextInit) {
         handleContextInit();
       }

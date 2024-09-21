@@ -110,6 +110,7 @@ export class AccountRepository {
             ])
 
 
+
             const companyIds = [...new Set(rawData.map((row: any) => row.company_id).filter(value => value !==null))];
             const customerIds = [...new Set(rawData.map((row: any) => row.edited_by_customer_id).filter(value => value !==null)),
                                 ...new Set(rawData.map((row: any) => row.verified_by_customer_id).filter(value => value !==null))
@@ -129,6 +130,8 @@ export class AccountRepository {
 
             
             const data = rawData.map(this.mapToAccountType)
+
+            
 
             return {data, total };
         }

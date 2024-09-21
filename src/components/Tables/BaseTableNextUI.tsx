@@ -69,6 +69,8 @@ const BaseTableNextUI = <T extends Record<string, any>>({
     const selectedColor: ColorType = "primary"
     const router = useRouter()
 
+    console.log('total',totalValue);
+
     const {complexFilterValue, setShowFilters, handleContextInit, currentPage, handleCurrentPageChange} = useFilter();
 
 // rounting by double click to interbal pages (cards)
@@ -80,29 +82,6 @@ const BaseTableNextUI = <T extends Record<string, any>>({
             router.push(`${route}${id}`); 
         }    
     };
-// changing date range filter in the parent component
-    const handleDateRangeChange = (value: RangeValue<DateValue>) => {
-        if (isDateRange && onSetDateRangeValue) {
-            onSetDateRangeValue([value.start.toString(), value.end.toString()]);
-        }
-    }
-// string list turning into RangeValue<DateValue>
-    const getRangeValue = (value: string[]|null|undefined): RangeValue<DateValue> | null=>{
-        if (!value) return null;
-        const startDate: DateValue = parseDate(value[0]);
-        const endDate: DateValue = parseDate(value[1]);
-        const dateRange: RangeValue<DateValue> = { start: startDate, end: endDate };
-        return dateRange;
-    }
-// clear filter values in the parent component
-    const handleClear=() => {
-        if (onFilterChange){
-            onFilterChange('');
-        }
-        if(isDateRange && onSetDateRangeValue) {
-            onSetDateRangeValue(null);
-        }
-    }
 
     const handleLinkClick=(link: string)=>{
         onLinkClick(link);
@@ -169,45 +148,6 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 <div className="flex flex-col gap-4 ">
                     <div className="flex justify-between items-center">
                         
-                        {/* <div className="flex justify-berween gap-3  items-center m-2"> 
-                            <Input
-                                isClearable
-                                className="w-full sm:max-w-[100%]"
-                                placeholder="Search by text..."
-                                startContent={<SearchIcon />}
-                                value={filterValue}
-                                onValueChange={onFilterChange}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        onFilterSubmit();
-                                    }
-                                }}
-                            />
-                            {isDateRange && (
-                                <div>
-                                    <DateRangePicker 
-                        
-                                        labelPlacement={"outside"}
-                                        className="max-w-xs ml-2" 
-                                        value={getRangeValue(dateRangeValue)}
-                                        onChange={handleDateRangeChange}
-                                    />
-                                </div>
-                            )}
-                            <Button
-                                className={`bg-${"default"}-500 text-white ml-2`} 
-                                size="md"
-                                onClick={onFilterSubmit}
-                            >   
-                                Apply
-                            </Button>
-                            <Button 
-                                onClick={handleClear} 
-                                className={`bg-${"default"}-500 text-white`}
-                            >
-                                Clean
-                            </Button>
-                        </div> */}
                         
                     </div>
 
@@ -215,7 +155,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 </div>
 
                 <div className='flex w-full justify-between items-center'>
-                {(totalValue && totalValue > 0) ? <Chip className='text-xs ml-4' color="primary">{`Total rows: ${totalValue}`}</Chip> : <></> }
+                {totalValue && (totalValue > 0) ? <Chip className='text-xs ml-4' color="primary">{`Total rows: ${totalValue}`}</Chip> : <></> }
                     {totalPages > 0 ? (
                         <div className='flex w-full justify-between'>
                         <div className="flex w-full justify-center">
@@ -257,7 +197,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
 
             </>
         )
-    }, [filterValue, dateRangeValue, pageSize, totalPages, currentPage]);     
+    }, [filterValue, dateRangeValue, pageSize, totalPages, currentPage, totalValue]);     
 
     if (isLoading) {
         return <Loader />;
@@ -286,7 +226,10 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 aria-label='qwe'
                 >
                 <TableHeader columns={columns}>
-                    {(column) => <TableColumn key={String(column.key)}>{column.label}</TableColumn>}
+                    {(column) => <TableColumn key={String(column.key)}>
+                        {column.label}
+
+                </TableColumn>}
 
                 </TableHeader>
 
@@ -310,8 +253,10 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                                         <div 
                                             className="truncate max-w-xs" 
                                             title={row[column.key] as unknown as string} 
+
                                             
                                         >
+
                                    
                                             <TableCellContent column = {column} row = {row} />    
                                 
