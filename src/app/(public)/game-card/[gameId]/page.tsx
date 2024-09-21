@@ -2,7 +2,7 @@
 
 import GameDetailForm from '@/components/Cards/GameCard';
 
-const CompanyCard = ({ params }: { params: { gameId: string } }) => {
+const GameCard = ({ params }: { params: { gameId: string } }) => {
 
 
 
@@ -16,4 +16,4 @@ const CompanyCard = ({ params }: { params: { gameId: string } }) => {
     );
 
 };
-export default CompanyCard;
+export default GameCard;
