@@ -5,7 +5,7 @@ import logger from "@/shared/utils/logger";
 import { decryptCBC, encryptCBC } from "@/shared/utils/security";
 
 export class UserRepository {
-
+    
 
 
     mapToUserType = (data: any): UserEntity =>{
@@ -36,8 +36,9 @@ export class UserRepository {
             modified_at: convertTimeStampToLocaleDateString(data.modified_at),
             deleted_at: convertTimeStampToLocaleDateString(data.deleted_at),
             archived_at: convertTimeStampToLocaleDateString(data.archived_at),
-            company_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.game.company_id}`,
-            game_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.game.company_id}/${data.game_id}`
+            company_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.game.company_id}`,
+            game_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.game.company_id}/${data.game_id}`,
+            user_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.game.company_id}/${data.game_id}/game/players/${data.id}`
 
 
         }
@@ -45,15 +46,25 @@ export class UserRepository {
 
         return userData
     }
-    async getUserById(userId: string): Promise<UserEntity> {
+    async getUserById(userId: string): Promise<UserEntity[]> {
         try{
-            const rawData = dbClient.aghanim_game.findUniqueOrThrow({
+            const rawData = await dbClient.aghanim_user.findUniqueOrThrow({
                 where: {
                     id: userId,
                 },
+                include: {
+                    game: {select: 
+                            {   
+                                name: true,
+                                company_id: true,
+                                company: true   
+                            }
+                        }
+                },
             });
+            let data = [this.mapToUserType(rawData)];
             
-            return this.mapToUserType(rawData);
+            return data;
         }    catch(error: unknown)  {
 
 

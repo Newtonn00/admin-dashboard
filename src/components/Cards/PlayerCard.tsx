@@ -23,7 +23,7 @@ interface PlayerAttributes {
   soft_currency_count: number;
 }
 
-const GameDetailForm: React.FC<PlayerDetailFormProps> = ({userId}) => {
+const PlayersDetailForm: React.FC<PlayerDetailFormProps> = ({userId}) => {
     const [activeTab, setActiveTab] = useState('details');
     const[player, setPlayer] = useState<UserEntity|null>(null);
     const filter: any = JSON.parse(`{"userId":"${userId}"}`);
@@ -42,6 +42,7 @@ const GameDetailForm: React.FC<PlayerDetailFormProps> = ({userId}) => {
     },[]);
 
     useEffect(() => {
+
       if (data.length > 0) {
         setPlayer(data[0]);
       }
@@ -81,7 +82,18 @@ const GameDetailForm: React.FC<PlayerDetailFormProps> = ({userId}) => {
             <div> 
               <div className="flex items-center mb-4">
                 <label className="block text-md font-medium mr-4">User ID:</label>
-                <p className="text-sm font-medium">{player.id}</p>
+
+                <a 
+                    href={player.user_link} 
+                    className="text-sm font-medium text-blue-500 hover:underline" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    onClick={()=>{handleLinkClick(player.user_link)}}>
+                      {player.id}
+                </a>
+
+
+                {/* <p className="text-sm font-medium">{player.id}</p> */}
               </div>
 
               <div className="flex items-center mb-4">
@@ -290,4 +302,4 @@ const GameDetailForm: React.FC<PlayerDetailFormProps> = ({userId}) => {
   );
 };
 
-export default GameDetailForm;
+export default PlayersDetailForm;
