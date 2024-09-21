@@ -113,6 +113,11 @@ export class TransactionsRepository {
             whereCondition += ` AND payment_date >= TIMESTAMP_SECONDS(${startTS}) AND payment_date <= TIMESTAMP_SECONDS(${endTS})`;
         }
 
+        if (filter['status']) {
+
+            whereCondition += ` AND status = "${filter['status']}"`;
+        }
+
   
         return this.getTransactions(page, pageSize, whereCondition);
     }
@@ -121,7 +126,7 @@ export class TransactionsRepository {
                             // SELECT * from events.payments 
                 // WHERE ${whereCondition} 
                 // ORDER BY payment_date DESC 
-
+            console
             const offset = (page - 1) * pageSize;
             const query = `
 
@@ -132,7 +137,7 @@ export class TransactionsRepository {
                 
                 LIMIT @pageSize OFFSET @offset`;
 
-
+            console.log(query);
             const options = {query: query, params: {pageSize: pageSize, offset:offset}}
             const [rows] = await bigquery.query(options);
             
@@ -147,7 +152,7 @@ export class TransactionsRepository {
             const [totalRows] = await bigquery.query(totalQuery);
             const total = totalRows[0].total;
 
-
+            
             // Fetch company and game names from database for mapping purposes.
             const companyIds = [...new Set(rows.map((row: any) => row.company_id))];
             const gameIds = [...new Set(rows.map((row: any) => row.game_id))];

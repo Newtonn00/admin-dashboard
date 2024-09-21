@@ -36,7 +36,8 @@ const AccountsTable = () => {
     //const [currentPage, setCurrentPage] = useState(1);
     const [filterValue, setFilterValue] = useState('');
     const [totalPages, setTotalPages] = useState(1);
-    const[pageSize, setPageSize] = useState(20);
+    const [pageSize, setPageSize] = useState(20);
+    const [totalValue, setTotalValue] = useState(0);
     //const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>>();
     const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
 
@@ -66,6 +67,8 @@ const AccountsTable = () => {
 useEffect(() => {
 
     setTotalPages(Math.ceil(total / pageSize));
+    setTotalValue(total);
+
 
 },[total]);
 
@@ -122,7 +125,7 @@ return (
         <BaseTableNextUI
             data={accounts}
             columns={columns}
-            totalValue={total}
+            totalValue={totalValue}
             //currentPage={currentPage}
             pageSize={pageSize}
             totalPages={totalPages}

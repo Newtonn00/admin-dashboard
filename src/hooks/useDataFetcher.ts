@@ -5,11 +5,12 @@ export const useDataFetcher = <T>() => {
     const [data, setData] = useState<T[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [total, setTotal] = useState(0);
+   const [total, setTotal] = useState(0);
 
     const fetchData = async ({endpoint, page = 1, pageSize = 10,  selectedFilterValue = {}}: DataFetchParams) =>{
         setIsLoading(true);
         setError(null);
+        
         try {
             
             const filterFields = { ...selectedFilterValue };
@@ -25,6 +26,7 @@ export const useDataFetcher = <T>() => {
         } catch (err) {
             setError(`${err}`);
         } finally {
+            
             setIsLoading(false);
         }
     };

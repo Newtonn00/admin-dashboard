@@ -5,6 +5,7 @@ filterValue: string;
 dateRangeValue: string[] | null;
 complexFilterValue: Record<string, any> | undefined;
 showFilters: boolean;
+showAdditionalFilters?: boolean;
 currentPage?: number;
 handleCurrentPageChange?:(pageValue:number)=>void;
 handleDateRangeChange?: (dateRangeValue: string[]|null) => void;
@@ -13,6 +14,8 @@ handleFilterSubmit?: () => void;
 handleClear?: () => void;
 handleContextInit?: () => void;
 setShowFilters?: (showFilterValue: boolean) => void;
+setShowAdditionalFilters?: (showAdditionalFiltersValue: boolean) => void;
+handleStateChange?: (state: string) => void;
 }
 
 const FilterContext = createContext<FilterContextProps | undefined>(undefined);
@@ -22,18 +25,28 @@ const [filterValue, setFilterValue] = useState('');
 const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
 const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>>({});
 const [showFilters, setShowFilters] = useState(false);
+const [showAdditionalFilters, setShowAdditionalFilters] = useState(false);
 const [currentPage, setCurrentPage] = useState(1);
+const [currentState, setCurrentState] = useState<String>("");
 
 const handleFilterChange = (filterValue: string) => {
     setFilterValue(filterValue);
 };
 
+
+const handleStateChange = (state:string) => {
+
+    if (state){
+       setCurrentState(state);
+    }
+}
 const handleFilterSubmit = () => {
     //setCurrentPage(1); 
 
     const filterFields = {
     selectedFields: filterValue || "", 
-    dateRange: dateRangeValue ? dateRangeValue : ["", ""] 
+    dateRange: dateRangeValue ? dateRangeValue : ["", ""] ,
+    status: currentState || "",
     };
     setComplexFilterValue(filterFields);
     setCurrentPage(1);
@@ -54,6 +67,7 @@ const handleClear=() => {
     if(handleDateRangeChange) {
         handleDateRangeChange(null);
     }
+    handleStateChange("");
 }
 
 const handleContextInit=() => {
@@ -63,6 +77,7 @@ const handleContextInit=() => {
     }
     setComplexFilterValue({});
     setCurrentPage(1);
+    setCurrentState("")
 }
 
 return (
@@ -71,14 +86,17 @@ return (
             dateRangeValue, 
             complexFilterValue, 
             showFilters, 
+            showAdditionalFilters,
             currentPage, 
             handleCurrentPageChange,
             setShowFilters,
+            setShowAdditionalFilters,
             handleDateRangeChange, 
             handleFilterChange, 
             handleFilterSubmit, 
             handleClear,
-            handleContextInit,}}
+            handleContextInit,
+            handleStateChange}}
     >
     {children}
     </FilterContext.Provider>
