@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest){
     try{
         const {dataId, data} = await request.json();
-
         const updatedData = settingsRepository.updateSettings(dataId, data);
 
         return NextResponse.json({success: true, data: updatedData, message: 'Settings API. Data saved'}, { status: 200 });

@@ -1,0 +1,451 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+  output   = "./generated/client_billing"
+}
+
+datasource payment_db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_BIllING_DB")
+}
+
+model adjustment {
+  adjustment_id     String    @id @payment_db.VarChar(32)
+  payout_id         String    @payment_db.VarChar(32)
+  adjustment_amount Decimal   @payment_db.Decimal(25, 6)
+  adjustment_type   String    @payment_db.VarChar(255)
+  created_at        DateTime? @default(now()) @payment_db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @payment_db.Timestamp(6)
+  comment           String?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model aggregators {
+  id   String @id @payment_db.VarChar(32)
+  name String @payment_db.VarChar(255)
+
+  payment_methods          payment_method[]
+  payment_method_fx_fee    payment_method_fx_fee[]
+  payment_method_tax_fee  payment_method_tax_fee[]
+
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model aghanim_legal_entities {
+  id              String @id @payment_db.VarChar(32)
+  name            String @payment_db.VarChar(255)
+  contract_number String @default("") @payment_db.VarChar(255)
+  email           String @default("") @payment_db.VarChar(255)
+  address         String @default("") @payment_db.VarChar(255)
+  country_iso     String @default("US") @payment_db.VarChar(2)
+  company_id      String @default("") @payment_db.VarChar(32)
+
+}
+
+model aghanim_legal_entities_game {
+  legal_entity_id String @payment_db.VarChar(32)
+  game_id         String @payment_db.VarChar(32)
+
+  @@unique([legal_entity_id, game_id])
+}
+
+model bin {
+  bin             String @id @payment_db.VarChar(6)
+  scheme          String @payment_db.VarChar(128)
+  bank            String @payment_db.VarChar(255)
+  type            String @payment_db.VarChar(128)
+  category        String @payment_db.VarChar(128)
+  issuing_country String @payment_db.VarChar(2)
+}
+
+model chargeback {
+  id               String   @id @payment_db.VarChar(32)
+  payment_id       String   @payment_db.VarChar(32)
+  ps_tx_id         String   @payment_db.VarChar(128)
+  status           String   @payment_db.VarChar(50)
+  amount           Int
+  created_at       DateTime @default(now()) @payment_db.Timestamp(6)
+  updated_at       DateTime @default(now()) @payment_db.Timestamp(6)
+  ps_chargeback_id String   @payment_db.VarChar(32)
+  amount_usd       Decimal  @default(0) @payment_db.Decimal(25, 6)
+}
+
+model chargeback_fee {
+  id                 Int     @id @default(autoincrement())
+  chargeback_id      String  @payment_db.VarChar(32)
+  fee_type           String  @payment_db.VarChar(128)
+  fixed_fee          BigInt
+  fixed_fee_currency String  @payment_db.VarChar(3)
+  fee_amount         Decimal @default(0) @payment_db.Decimal(25, 6)
+  fee_amount_usd     Decimal @default(0) @payment_db.Decimal(25, 6)
+
+  @@index([chargeback_id])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model credentials {
+  payment_method_id String @id @payment_db.VarChar(32)
+  credentials       Json?
+
+}
+
+model currency {
+  iso_code           String  @id @payment_db.VarChar(3)
+  numeric_code       Int?    @payment_db.SmallInt
+  name               String  @payment_db.VarChar(256)
+  minor_unit         Int     @payment_db.SmallInt
+  decimal_separator  String? @payment_db.VarChar(1)
+  thousand_separator String? @payment_db.VarChar(1)
+  grapheme           String? @payment_db.VarChar(8)
+  template           String? @payment_db.VarChar(8)
+}
+
+model currency_rates {
+  id              Int       @id @default(autoincrement())
+  base_currency   String    @payment_db.VarChar(3)
+  target_currency String    @payment_db.VarChar(3)
+  rate            Decimal   @payment_db.Decimal(20, 10)
+  created_at      DateTime? @default(now()) @payment_db.Timestamp(6)
+
+  @@index([base_currency, target_currency], map: "currency_rates__target_index")
+}
+
+model customer_net {
+  payment_id                 String  @id @payment_db.VarChar(32)
+  game_id                    String  @payment_db.VarChar(32)
+  payout_id                  String? @payment_db.VarChar(32)
+  customer_net_amount        BigInt
+  customer_net_currency_code String  @payment_db.VarChar(3)
+
+  @@index([game_id])
+}
+
+model customer_payout {
+  payout_id     String                 @id @payment_db.VarChar(32)
+  game_id       String                 @payment_db.VarChar(32)
+  amount        BigInt
+  currency_code String                 @payment_db.VarChar(3)
+  status        customer_payout_status
+  requested_at  DateTime               @payment_db.Timestamp(6)
+  finished_at   DateTime?              @payment_db.Timestamp(6)
+
+  @@index([game_id])
+  @@index([status])
+}
+
+model goose_db_version {
+  id         Int       @id @default(autoincrement())
+  version_id BigInt
+  is_applied Boolean
+  tstamp     DateTime? @default(now()) @payment_db.Timestamp(6)
+}
+
+model paylink_users {
+  id                        String  @id @payment_db.VarChar(256)
+  default_payment_option_id String? @payment_db.VarChar(256)
+}
+
+model payment {
+  id                            String   @id @payment_db.VarChar(32)
+  game_id                       String   @payment_db.VarChar(32)
+  payment_method_id             String   @payment_db.VarChar(32)
+  payment_system_id             String   @payment_db.VarChar(32)
+  payment_system_tx_id          String?  @payment_db.VarChar(128)
+  user_id                       String   @payment_db.VarChar(32)
+  order_id                      String   @payment_db.VarChar(32)
+  order_amount                  BigInt
+  order_currency_code           String   @payment_db.VarChar(3)
+  payment_country_code          String   @payment_db.VarChar(2)
+  payment_currency_code         String   @payment_db.VarChar(3)
+  payment_amount                BigInt
+  payment_status                String   @payment_db.VarChar(50)
+  created_at                    DateTime @default(now()) @payment_db.Timestamp(6)
+  email                         String   @default("") @payment_db.VarChar(255)
+  paylink_user_id               String   @default("") @payment_db.VarChar(32)
+  additional_data               Json?    @default("{}")
+  payment_number                String   @default("") @payment_db.VarChar(16)
+  email_sent                    Boolean  @default(false)
+  refund_initiator_id           String   @default("") @payment_db.VarChar(255)
+  lang                          String   @default("en-US") @payment_db.VarChar(5)
+  updated_at                    DateTime @default(now()) @payment_db.Timestamp(6)
+  fail_reason                   String?  @payment_db.VarChar(512)
+  fail_reason_code              String?  @payment_db.VarChar(255)
+  payment_amount_usd            Decimal  @default(0) @payment_db.Decimal(25, 6)
+  return_url                    String?  @payment_db.VarChar(1024)
+  fail_reason_info              Json?    @default("{}")
+  ps_fail_reason_code           String?  @default("") @payment_db.VarChar(1024)
+  initial_amount_order_currency Decimal  @default(0) @payment_db.Decimal(25, 6)
+  ext_link                      String?  @payment_db.VarChar(4096)
+  download_ext_link             String?  @payment_db.VarChar(4096)
+  qr_ext_link                   String?  @payment_db.VarChar(4096)
+  qr_app_ext_link               String?  @payment_db.VarChar(4096)
+
+  @@index([game_id])
+  @@index([order_id])
+  @@index([user_id])
+  @@index([user_id, payment_status, created_at], map: "payment_user_id_payment_status_created_at_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model payment_dispute_fee {
+  pm_id              String       @id @payment_db.VarChar(32)
+  dispute_type       dispute_type
+  fixed_fee          BigInt
+  fixed_fee_currency String       @payment_db.VarChar(3)
+  
+  payment_method    payment_method @relation(fields: [pm_id], references: [id])  
+
+}
+
+model payment_fee {
+  id                        Int     @id @default(autoincrement())
+  payment_id                String  @payment_db.VarChar(32)
+  included                  Boolean
+  visible                   Boolean
+  fee_type                  String  @payment_db.VarChar(128)
+  fee_prc                   Decimal @payment_db.Decimal(8, 5)
+  fee_amount                Decimal @payment_db.Decimal(25, 6)
+  fee_amount_usd            Decimal @default(0) @payment_db.Decimal(25, 6)
+  fee_amount_order_currency Decimal @default(0) @payment_db.Decimal(25, 6)
+
+  @@index([payment_id])
+}
+
+model payment_method {
+  id                   String   @id @payment_db.VarChar(256)
+  name                 String   @payment_db.VarChar(256)
+  rank                 Int      @default(100000)
+  show                 Boolean? @default(true)
+  supported_countries  String?  @default("") @payment_db.VarChar(2048)
+  aggregator_id        String   @default("") @payment_db.VarChar(32)
+  caption              String?  @default("") @payment_db.VarChar(255)
+  logo_url             String?  @default("") @payment_db.VarChar(255)
+  dashboard_show       Boolean? @default(true)
+  supported_currencies String?  @default("") @payment_db.VarChar(2048)
+
+  aggregator           aggregators? @relation(fields: [aggregator_id], references: [id])
+  payment_method_fee  payment_method_fee[]
+  payment_method_fx_fee payment_method_fx_fee[]
+  payment_method_game_settings payment_method_game_settings[]
+  payment_method_tax_fee  payment_method_tax_fee[]
+  payment_dispute_fee payment_dispute_fee[]
+
+
+
+}
+
+model payment_method_fee {
+  id                Int     @id @default(autoincrement())
+  payment_method_id String  @payment_db.VarChar(32)
+  fee_prc           Decimal @payment_db.Decimal(8, 5)
+  fee_fix           BigInt
+  country_code      String  @default("") @payment_db.VarChar(2)
+  min_amount        BigInt  @default(0)
+
+  payment_method    payment_method @relation(fields: [payment_method_id], references: [id])  
+
+  @@index([id], map: "payment_method_fee_id_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model payment_method_fx_fee {
+  aggregator_id     String  @payment_db.VarChar(255) @id
+  payment_method_id String?  @payment_db.VarChar(255)
+  currencies        String[]
+  country_code      String   @payment_db.VarChar(2)
+  fee_prc           Decimal  @payment_db.Decimal(8, 5)
+  fee_fix           Decimal  @payment_db.Decimal(25, 6)
+
+  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id])  
+  aggregator        aggregators @relation(fields: [aggregator_id], references: [id])  
+
+}
+
+model payment_method_game_settings {
+  payment_method_id String  @payment_db.VarChar(32)
+  game_id           String  @payment_db.VarChar(32)
+  enabled           Boolean @default(true)
+
+  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id])  
+
+
+  @@unique([payment_method_id, game_id])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model payment_method_tax_fee {
+  aggregator_id     String @id @payment_db.VarChar(255)
+  payment_method_id String? @payment_db.VarChar(255)
+  fee_prc           Decimal @payment_db.Decimal(8, 5)
+  fee_fix           Decimal @payment_db.Decimal(25, 6)
+  country_code      String  @payment_db.VarChar(2)
+  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id])  
+  aggregator        aggregators @relation(fields: [aggregator_id], references: [id])  
+
+
+}
+
+model payment_tax {
+  payment_id                String   @id @payment_db.VarChar(32)
+  tax_id                    String?  @payment_db.VarChar
+  tax_amount                BigInt
+  tax_prc                   Decimal  @payment_db.Decimal(8, 5)
+  tax_type                  String   @payment_db.VarChar(255)
+  included                  Boolean
+  visible                   Boolean
+  date                      DateTime @default(now()) @payment_db.Timestamp(6)
+  address1                  String?  @payment_db.VarChar(255)
+  address2                  String?  @payment_db.VarChar(255)
+  address3                  String?  @payment_db.VarChar(255)
+  city                      String?  @payment_db.VarChar(255)
+  state                     String?  @payment_db.VarChar(255)
+  zipcode                   String?  @payment_db.VarChar(255)
+  created_at                DateTime @default(now()) @payment_db.Timestamp(6)
+  updated_at                DateTime @default(now()) @payment_db.Timestamp(6)
+  committed                 Boolean? @default(false)
+  refunded                  Boolean? @default(false)
+  tax_amount_committed      BigInt?
+  tax_prc_committed         Decimal? @payment_db.Decimal
+  country                   String?  @payment_db.VarChar(255)
+  calculation_method        String?  @payment_db.VarChar
+  calculation_status        String?  @payment_db.VarChar
+  tax_amount_usd            Decimal  @default(0) @payment_db.Decimal(25, 6)
+  tax_amount_order_currency Decimal  @default(0) @payment_db.Decimal(25, 6)
+  tax_amount_eur            Decimal  @default(0) @payment_db.Decimal(25, 6)
+  tax_amount_aud            Decimal  @default(0) @payment_db.Decimal(25, 6)
+}
+
+model payout {
+  payout_id      String    @id @payment_db.VarChar(32)
+  agreement_id   String    @payment_db.VarChar(32)
+  payout_amount  Decimal   @payment_db.Decimal(25, 6)
+  payout_type    String    @payment_db.VarChar(255)
+  payout_status  String    @payment_db.VarChar(255)
+  ending_balance Decimal   @payment_db.Decimal(25, 6)
+  currency_code  String    @payment_db.VarChar(3)
+  created_at     DateTime? @default(now()) @payment_db.Timestamp(6)
+  updated_at     DateTime? @default(now()) @payment_db.Timestamp(6)
+  ending_date    DateTime  @default(now()) @payment_db.Timestamptz(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model payout_agreements {
+  id                   String        @id @payment_db.VarChar(32)
+  payout_period        payout_period
+  payout_delay         Int
+  currency_iso_code    String        @payment_db.VarChar(3)
+  aghanim_legal_entity String        @payment_db.VarChar(32)
+
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model payout_fee {
+  pm_id              String  @id @payment_db.Uuid
+  percentage_fee     Decimal @payment_db.Decimal(8, 5)
+  fixed_fee          BigInt
+  fixed_fee_currency String  @payment_db.VarChar(3)
+
+}
+
+model refund {
+  id           String   @id @payment_db.VarChar(32)
+  payment_id   String   @payment_db.VarChar(32)
+  ps_tx_id     String   @payment_db.VarChar(128)
+  ps_refund_id String   @payment_db.VarChar(128)
+  status       String   @payment_db.VarChar(50)
+  amount       Int
+  created_at   DateTime @default(now()) @payment_db.Timestamp(6)
+  updated_at   DateTime @default(now()) @payment_db.Timestamp(6)
+  amount_usd   Decimal  @default(0) @payment_db.Decimal(25, 6)
+}
+
+model refund_fee {
+  id                 Int     @id @default(autoincrement())
+  refund_id          String  @payment_db.VarChar(32)
+  fee_type           String  @payment_db.VarChar(128)
+  fixed_fee          BigInt
+  fixed_fee_currency String  @payment_db.VarChar(3)
+  fee_amount         Decimal @default(0) @payment_db.Decimal(25, 6)
+  fee_amount_usd     Decimal @default(0) @payment_db.Decimal(25, 6)
+
+  @@index([refund_id])
+}
+
+model service_fee {
+  id      Int     @id @default(autoincrement())
+  game_id String  @payment_db.VarChar(32)
+  fee_prc Decimal @payment_db.Decimal(8, 5)
+
+  @@index([game_id])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model tax_country {
+  country_iso_code String  @payment_db.VarChar
+  zip_code         String? @payment_db.VarChar
+  tax_percent      Decimal @payment_db.Decimal
+  tax_included     Boolean
+
+  @@ignore
+}
+
+model tax_game_settings {
+  game_id        String  @id @payment_db.VarChar(32)
+  countryisocode String  @payment_db.VarChar(2)
+  tax_included   Boolean
+}
+
+model user_payment_options {
+  id                       String    @id @payment_db.VarChar(256)
+  payment_method_id        String    @payment_db.VarChar(256)
+  user_id                  String    @payment_db.VarChar(256)
+  token                    String    @payment_db.VarChar(2048)
+  data                     Json      @default("{}")
+  last_used_at             DateTime? @default(now()) @payment_db.Timestamp(6)
+  authorization_payment_id String    @default("") @payment_db.VarChar(32)
+  verified                 Boolean   @default(false)
+  billing_address          Json      @default("{}")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model wht_fee {
+  origin_country_iso      String  @payment_db.VarChar(2)
+  destination_country_iso String  @payment_db.VarChar(2)
+  rate                    Decimal @payment_db.Decimal(8, 5)
+
+  @@id([origin_country_iso , destination_country_iso])
+}
+
+enum customer_payout_status {
+  requested
+  processing
+  cancelled
+  completed
+  failed
+  rejected
+}
+
+enum dispute_type {
+  chargeback
+  refund
+}
+
+enum payment_status {
+  created
+  confirmed
+  done
+  cancelled
+  refunded
+  refund_requested
+  charged_back
+  rejected
+  failed
+}
+
+enum payout_period {
+  daily
+  weekly
+  monthly
+  quarterly
+  yearly
+}

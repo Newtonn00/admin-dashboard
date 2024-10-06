@@ -1,10 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-// export const dbClient = new PrismaClient(
-//     // {
-//     // log: ['query', 'info', 'warn', 'error'],
-//     // }
-// );  
+import { PrismaClient } from "../../../prisma/generated/client_aghanim";
 
 declare global {
     var dbClient: PrismaClient | undefined;

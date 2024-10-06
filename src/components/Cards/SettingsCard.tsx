@@ -60,6 +60,7 @@ const SettingsDetailForm = () => {
         setSoftBannedDomains(settingsData[0].data.soft_banned_email_domains ?? []);
 
         setSettings(settingsData[0]);
+        isFirstRender.current = true;
       }
     }, [settingsData]);
 

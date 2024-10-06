@@ -2,7 +2,7 @@
 import GamesTable from "@/components/Tables/GamesTable";
 
 
-const CompaniesTablePage = () => {
+const GamesTablePage = () => {
   return (
 
       <div 
@@ -14,4 +14,4 @@ const CompaniesTablePage = () => {
   );
 };
 
-export default CompaniesTablePage;
+export default GamesTablePage;
