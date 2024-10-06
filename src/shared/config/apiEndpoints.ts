@@ -6,5 +6,7 @@ export const API_ENDPOINTS = {
     PLAYERS: `/api/player`,
     ACCOUNTS: '/api/account',
     SETTINGS: '/api/settings',
+    PAYMENTMETHOD: '/api/payment-method',
+    AGGREGATOR: '/api/aggregator',
 
 };

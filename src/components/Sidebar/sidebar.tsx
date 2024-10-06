@@ -15,6 +15,8 @@ import { AccountsIcon } from "../Icons/Sidebar/accounts-icon";
 import { GameIcon } from "../Icons/Sidebar/game-icon";
 import { PlayerIcon } from "../Icons/Sidebar/player-icon";
 import { SettingsIcon } from "../Icons/Sidebar/settings-icon";
+import { PaymentMethodIcon } from "../Icons/Sidebar/payment-method-icon";
+import { AggregatorIcon } from "../Icons/Sidebar/aggregator-icon";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -50,6 +52,7 @@ export const SidebarWrapper = () => {
             />
  
             <SidebarMenu title="Main Menu">
+              
             <SidebarItem
                 isActive={pathname === "/accounts"}
                 title="Accounts"
@@ -101,9 +104,21 @@ export const SidebarWrapper = () => {
                 icon={<ReportsIcon />}
               /> */}
             </SidebarMenu>
+            <SidebarMenu title="Billing Menu">
+              <SidebarItem
+                isActive={pathname === "/payment-methods"}
+                title="Payment Methods"
+                icon={<PaymentMethodIcon />}
+                href="/payment-methods"
+              />
+              <SidebarItem
+                isActive={pathname === "/aggregators"}
+                title="Aggregators"
+                icon={<AggregatorIcon />}
+                href="/aggregators"
+              />
+            </SidebarMenu>
           </div>
-
-          
         </div>
       </div>
     </aside>

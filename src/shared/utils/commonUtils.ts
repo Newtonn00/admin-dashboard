@@ -47,3 +47,31 @@ export function convertAmountWithCurrencyPrecision(amount: number, currency: str
     return updatedAmount;
 }
 
+export function genUID(prefix: string, uidLen: number): string {
+    const letters: string[] = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const lettLen: number = letters.length;
+    let uid: string = prefix + '_';
+
+    // Генерация части ID на основе временной метки
+    let tsPart: string[] = [];
+    let now: number = Math.floor(Date.now() / 1000); // Unix timestamp в секундах
+    while (now > 0) {
+        const rem: number = now % lettLen;
+        tsPart.unshift(letters[rem]);
+        now = Math.floor(now / lettLen);
+    }
+    uid += tsPart.join('');
+
+    // Генерация случайной части ID
+    const randPartLen: number = uidLen - uid.length;
+    if (randPartLen > 0) {
+        let randPart: string[] = new Array(randPartLen);
+        for (let i = 0; i < randPartLen; i++) {
+            randPart[i] = letters[Math.floor(Math.random() * lettLen)];
+        }
+        uid += randPart.join('');
+    }
+
+    return uid;
+}
+
