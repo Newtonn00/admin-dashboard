@@ -3,7 +3,7 @@ import { DataFetchParams } from "@/types/dataHooksTypes";
 
 export const useDataFetcher = <T>() => {
     const [data, setData] = useState<T[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [total, setTotal] = useState(0);
 
@@ -21,8 +21,9 @@ export const useDataFetcher = <T>() => {
                 if (!success) {
                     throw new Error(`Failed to load data from ${endpoint}`);
                 }
-                setData(data);
+                setData([data]);
                 setTotal(1);
+                console.log('hookData', data);
             }else{
                 const filterFields = { ...selectedFilterValue };
                 const response = await fetch(`${endpoint}?page=${page}&pageSize=${pageSize}&filter=${encodeURIComponent(JSON.stringify(filterFields))}`);

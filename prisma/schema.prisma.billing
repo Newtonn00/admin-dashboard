@@ -225,9 +225,7 @@ model payment_method {
 
   aggregator           aggregators? @relation(fields: [aggregator_id], references: [id])
   payment_method_fee  payment_method_fee[]
-  payment_method_fx_fee payment_method_fx_fee[]
   payment_method_game_settings payment_method_game_settings[]
-  payment_method_tax_fee  payment_method_tax_fee[]
   payment_dispute_fee payment_dispute_fee[]
 
 
@@ -256,7 +254,6 @@ model payment_method_fx_fee {
   fee_prc           Decimal  @payment_db.Decimal(8, 5)
   fee_fix           Decimal  @payment_db.Decimal(25, 6)
 
-  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id])  
   aggregator        aggregators @relation(fields: [aggregator_id], references: [id])  
 
 }
@@ -279,7 +276,7 @@ model payment_method_tax_fee {
   fee_prc           Decimal @payment_db.Decimal(8, 5)
   fee_fix           Decimal @payment_db.Decimal(25, 6)
   country_code      String  @payment_db.VarChar(2)
-  payment_method    payment_method? @relation(fields: [payment_method_id], references: [id])  
+
   aggregator        aggregators @relation(fields: [aggregator_id], references: [id])  
 
 

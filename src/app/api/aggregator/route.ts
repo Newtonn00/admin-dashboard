@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
 
 
         let data, total;
-        ({data, total} = await aggregatorRepository.getAggregators(page, pageSize, filter));
+        ({data, total} = await aggregatorRepository.getRecords(page, pageSize, filter));
 
         return NextResponse.json({success: true, data, total });
     } catch (error) {

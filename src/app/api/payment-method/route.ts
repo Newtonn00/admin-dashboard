@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     try {
 
         let data, total;
-        ({data, total} = await paymentMethodRepository.getPaymentMethodsByFilter(page, pageSize, filter));
+        ({data, total} = await paymentMethodRepository.getByFilter(page, pageSize, filter));
         // console.log(
         //     JSON.stringify(data, (key, value) =>
         //         typeof value === 'bigint' ? value.toString() : value

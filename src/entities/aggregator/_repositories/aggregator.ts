@@ -2,23 +2,27 @@ import { dbBillingClient } from "@/shared/lib/db_billing";
 import { AggregatorEntity } from "../_domain/types";
 import { convertDateStringToTimeStampInSeconds, convertTimeStampToLocaleDateString } from "@/shared/utils/commonUtils";
 import logger from "@/shared/utils/logger";
+import { BaseRepository } from "@/entities/base_repository/BaseRepository";
+import { paymentMethodFxFeeRepository } from "@/entities/payment_method_fx_fee/_repository/paymentMethodFxFee";
+import { paymentMethodTaxFeeRepository } from "@/entities/payment_method_tax_fee/_repository/paymentMethodTaxFee";
 
-export class AggregatorRepository {
+export class AggregatorRepository extends BaseRepository<AggregatorEntity> {
 
+    constructor() {
+        super('Aggregator', logger);
+    }
 
-
-    mapToAggregatorType = (data: any): AggregatorEntity =>{
-
-
+    mapToDataType(data: any): AggregatorEntity {
+        
 
         const aggregatorData = {
-            
-
             id: data.id,
             name: data.name,
             fx_fee: data.payment_method_fx_fee.map((pmf: any) => 
                 pmf ?
                 {
+                    aggregator_id: pmf.aggregator_id,
+                    payment_method_id: pmf.payment_method_id ?? "",
                     prc: Number(pmf.fee_prc),
                     fix: Number(pmf.fee_fix),
                     country_code: pmf.country_code,
@@ -29,6 +33,8 @@ export class AggregatorRepository {
             tax_fee: data.payment_method_tax_fee.map((pmf: any) => 
                 pmf ?
                 {
+                    aggregator_id: pmf.aggregator_id,
+                    payment_method_id: pmf.payment_method_id ?? "",
                     prc: Number(pmf.fee_prc),
                     fix: Number(pmf.fee_fix),
                     country_code: pmf.country_code,
@@ -37,46 +43,30 @@ export class AggregatorRepository {
             ),
 
         }
-
         return aggregatorData
     }
-    async getAggregatorById(aggId: string): Promise<AggregatorEntity[]> {
-        try{
+    getRecordById(id: string): Promise<AggregatorEntity> {
+        return this.handleDatabaseOperation(async ()=>{
+
+
             const rawData = await dbBillingClient.aggregators.findUniqueOrThrow({
                 where: {
-                    id: aggId,
+                    id: id,
                 },
                 include: {
                     payment_method_fx_fee: true,
                     payment_method_tax_fee: true,
                     
-
                 }
             });
             
-            return [this.mapToAggregatorType(rawData)];
-        }    catch(error: unknown)  {
+            return this.mapToDataType(rawData);
 
 
-            if (error instanceof Error){
-                logger.error({
-                        msg: `Aggregator Repository Error. Failed to retrieve Game data for aggregator_id: ${aggId}`, 
-                        error: error.message,
-                        stack: error.stack,
-                    }
-                );
-            } else{
-
-                logger.error({msg: 'Aggregator Repository Error. An unknown error occurred'});
-            }    
-            
-            throw new Error(`Failed to retrieve Aggregator data for aggregator_id: ${aggId}`);
-
-
-        }
+        }, `get record ${id}`);
     }
-    async getAggregators(page: number, pageSize: number, whereCondition: Record<string, any>): Promise<{data: AggregatorEntity[], total: number}> {
-        try{
+    getRecords(page: number, pageSize: number, whereCondition: Record<string, any>): Promise<{ data: AggregatorEntity[]; total: number; }> {
+        return this.handleDatabaseOperation(async () =>{
             const skip = (page - 1) * pageSize;
             const take = pageSize;
                     
@@ -101,82 +91,65 @@ export class AggregatorRepository {
 
             ])
 
-            const data = rawData.map(this.mapToAggregatorType)
+            const data = rawData.map(this.mapToDataType)
 
             return {data, total };
-        }catch (error: unknown){
 
-            if (error instanceof Error){
-                logger.error(
-                    {
-                        msg: `Aggregator Repository Error. Failed to retrieve Aggregators data`, 
-                        error: error.message,
-                        stack: error.stack,
-                    }
-                );
-            } else{
 
-                logger.error({msg: 'Aggregator Repository Error. An unknown error occurred'});
-            }    
-            
-            throw new Error(`Failed to retrieve Aggregator data `);
-        }
-    
+
+        }, 'get records');
     }
+    updateRecord(data: Record<string, any>): Promise<AggregatorEntity> {
 
-    async updateAggregator(aggId:string, data:  Record<string, any>): Promise<AggregatorEntity[]>{
+        return this.handleDatabaseOperation(async () =>{
 
-        try{
-            await dbBillingClient.aggregators.update({
-                                        where: {id: aggId},
-                                        data: data})
-            return this.getAggregatorById(aggId);
-        } catch(error: unknown)
-        {
+            if (data.tableName === 'aggregator'){
+                        
 
-            if (error instanceof Error){
-                logger.error(
-                    {msg: `Aggregator Repository Error. Failed to update account data for aggregator_id ${aggId}`, 
-                    error: error.message,
-                    stack: error.stack,
-                });
-            } else{
+                this.mapToDataType(await dbBillingClient.aggregators.update({
+                    where: {id: data.id},
+                    data:{name: data.data.name}}))
 
-                logger.error({msg: 'Aggregator Repository Error. An unknown error occurred'});
+            }else{
+                await this.getRepositoryByTableName(data.tableName).updateRecord(data.data);
             }    
-            
-            throw new Error(`Failed to update Aggregator data for aggregator_id ${aggId}`);
-        }                                
-    }
+            const updatedData = await this.getRecordById(data.id);
 
-    async createAggregator(data: Record<string, any>):Promise<AggregatorEntity[]>{
-        try{
+            return updatedData
+
+        }, `update record ${JSON.stringify(data.id)}`);
+
+
+    }
+    createRecord(data: Record<string, any>): Promise<AggregatorEntity> {
+        return this.handleDatabaseOperation(async() => {
+
             const newAggregator = await dbBillingClient.aggregators.create({
 
-                data: {//+
-                    id: data.id,//+
-                    name: data.name,//+
+                data: {
+                    id: data.id,
+                    name: data.name,
 
                 },
             });
-            return [this.mapToAggregatorType(newAggregator)];
-        } catch(error: unknown)
-        {
+            return this.mapToDataType(newAggregator);
 
-            if (error instanceof Error){
-                logger.error(
-                    {msg: `Aggregator Repository Error. Failed to create new Aggregator`, 
-                    error: error.message,
-                    stack: error.stack,
-                });
-            } else{
+        }, `create record` )
+    }
+    getFilter(filter: Record<string, any>): string {
+        throw new Error("Method not implemented.");
+    }
+    getRepositoryByTableName(tableName: string) {
+        switch (tableName) {
 
-                logger.error({msg: 'Aggregator Repository Error. An unknown error occurred'});
-            }    
-            
-            throw new Error('Failed to create new Aggregator');
+
+            case 'fx_fee':
+                return paymentMethodFxFeeRepository;
+            case 'tax_fee':
+                return paymentMethodTaxFeeRepository;
+            default:
+                throw new Error(`Unknown table name: ${tableName}`);
         }
-        
     }
     
 }

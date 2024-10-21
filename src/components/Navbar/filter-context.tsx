@@ -45,7 +45,7 @@ const handleFilterSubmit = () => {
     //setCurrentPage(1); 
 
     const filterFields = {
-    selectedFields: filterValue || "", 
+    selectedFields: filterValue.trim || "", 
     dateRange: dateRangeValue ? dateRangeValue : ["", ""] ,
     status: currentState || "",
     };
