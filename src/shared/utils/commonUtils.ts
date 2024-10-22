@@ -75,3 +75,19 @@ export function genUID(prefix: string, uidLen: number): string {
     return uid;
 }
 
+export function checkArraysAsStringIntersection(str1: string | null, str2: string | null): boolean {
+
+    if (!str1 || !str2) return true;  // Проверка на пустоту
+
+    const arrayFromString1 = str1.replace(/{|}/g, "").split(",").map(element => element.trim());
+    
+    const arrayFromString2 = str2.replace(/{|}/g, "").split(",").map(element => element.trim());
+
+    if (str1 === '' || str2 === '') return true;
+    
+    const intersection = arrayFromString1.filter(str => arrayFromString2.includes(str));
+    
+    return (intersection.length > 0) ;
+
+}
+

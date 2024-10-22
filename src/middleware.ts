@@ -9,8 +9,9 @@ export async function middleware(req: NextRequest) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!token && !req.nextUrl.pathname.startsWith('/api')) {
+    if (!token && !req.nextUrl.pathname.startsWith('/api') && !req.nextUrl.pathname.startsWith('/unauthorized')) {
 
+        
         const url = req.nextUrl.clone();
         url.pathname = '/api/auth/signin/auth0';
         return NextResponse.redirect(url);

@@ -30,10 +30,13 @@ export const nextAuthConfig: AuthOptions = {
         }
     },
     
-
+    pages: {
+        error: '/unauthorized', // перенаправление на вашу страницу ошибки
+      },
 
     callbacks: {
         async signIn({ user, account, profile, email, credentials }) {
+            
             logger.info({
                 msg: 'User signed in',
                 userId: user.id,

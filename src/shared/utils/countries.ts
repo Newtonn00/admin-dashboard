@@ -7,7 +7,6 @@ interface Country {
     isUN: boolean;  
   }
   
-  // Данные стран
   const countries: { [key: string]: Country } = {
     ISOCodeAF: { isoCode: "AF", numericCode: 4, name: "Afghanistan", continent: "Asia", isEU: false, isUN: false },
     ISOCodeAX: { isoCode: "AX", numericCode: 248, name: "Åland Islands", continent: "Europe", isEU: false, isUN: true },
@@ -164,4 +163,12 @@ interface Country {
   ISOCodeSE: { isoCode: "SE", numericCode: 752, name: "Sweden", continent: "Europe", isEU: true, isUN: true },
   ISOCodeXK: { isoCode: "XK", numericCode: 95, name: "Kosovo", continent: "Europe", isEU: true, isUN: true },
 }
-  
+
+export function isCountryISOCodeCorrect(isoCode: string): boolean {
+  if (!isoCode){
+    return true;
+  }  
+
+  return Object.values(countries).some((country) => country.isoCode === isoCode);
+
+}

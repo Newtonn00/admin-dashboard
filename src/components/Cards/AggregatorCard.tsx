@@ -4,20 +4,27 @@ import React, { useEffect, useState } from 'react';
 import { AggregatorEntity } from "@/entities/aggregator/_domain/types";
 import { useDataFetcher } from '@/hooks/useDataFetcherDynamicRoutes';
 import Loader from '../Common/Loader';
-import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader, Divider, Tab, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tabs } from '@nextui-org/react';
+import { Accordion, AccordionItem, Button, Card, CardBody, CardHeader, Divider } from '@nextui-org/react';
 import { useLogger } from '@/hooks/useLogger';
 import { API_ENDPOINTS } from '@/shared/config/apiEndpoints';
+import BaseEditableTable from '../Tables/BaseEditableTable';
+import { useSaveData } from '@/hooks/useSaveDataDynamicRoutes';
+import { isCountryISOCodeCorrect } from '@/shared/utils/countries';
+import { isCurrencyISOCodeCorrect } from '@/shared/utils/currencies';
 
 interface PaymentMethodDetailFormProps {
   aggId: string;
 }
 
 const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) => {
-    const [activeTab, setActiveTab] = useState('details');
+
+    const [updatedData, setUpdatedData] = useState<Record<string,any>|null>(null)
     const[aggregator, setAggregator] = useState<AggregatorEntity|null>(null);
     const [linkValue, setLinkValue] = useState('');
 //getting game details
     const {data, isLoading, error, total, fetchData } = useDataFetcher<AggregatorEntity>();
+    const {updatedData:savedData, isSaving=false, errorSaving, saveData} = useSaveData<AggregatorEntity>(API_ENDPOINTS.AGGREGATOR);
+
     //getting function for posting logs
     const { logMessage } = useLogger();
     useEffect(() => {
@@ -45,6 +52,27 @@ const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) =
 
     };
 
+    useEffect(() =>{
+      
+      if (updatedData){
+
+        saveData(aggId, updatedData);
+      }
+
+    },[updatedData])
+
+    useEffect(() => {
+      if (savedData) {
+        
+        setAggregator(savedData);
+      }
+    }, [savedData]);
+
+    const handleSaveRecord = (tableName: string,  updatedData: Record<string, any>) =>{
+      setUpdatedData({id:aggId, data:updatedData, tableName});
+
+    }
+
     if (error) {
       return <div>Error loading {error}</div>; 
     }
@@ -56,69 +84,11 @@ const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) =
       return <Loader /> ;
     } 
 
-    const handleTabChange = (key: any) => {
-      setActiveTab(key); 
-    };
-
-    const renderSettingsTable=(data: Record<string, any>[], handleRemoveRecord?: (name: string) => void)=>{
-      
-      let columns: string[] = [""]
-
-      if(data.length > 0) {
-        columns = [...Object.keys(data[0]), "Action"];        
-      }
-      return(
-        <Table>
-          
-        <TableHeader>
-
-          {columns.map((columnKey) => (
-            <TableColumn key={String(columnKey)}>{String(columnKey)}</TableColumn>
-          ))
-          
-          }
-          
-
-        </TableHeader>
-        {data.length > 0 ? (
-          <TableBody>
-            {data.map((dataRow, index) => (
-              <TableRow key={index}>
-                {columns.map((column) => (
-                  <TableCell 
-                    key={column}
-                  >
-                    
-                    {column !== "Action" ? (dataRow[column]): 
-                    
-                    <Button 
-                      color="danger" size="sm"
-                      isDisabled
-                    >
-                    Remove
-                  </Button>
-                  }
-                  
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        ) : (
-          <TableBody emptyContent="No rows to display">{[]}</TableBody>
-        )}
-      </Table>
-
-      );
-  
-      }
-
 
 
     // tabs rendering
-    const renderTabContent = () => {
-    switch (activeTab) {
-        case 'details':
+    const renderFormContent = () => {
+
         return (
             <div> 
               <div className="flex items-center mb-4">
@@ -133,26 +103,43 @@ const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) =
 
               <Accordion>
 
-                <AccordionItem key="1" aria-label="ips" title={`fx_fee (${ aggregator.fx_fee?.length})`}>
-                  {renderSettingsTable(aggregator.fx_fee ??[])}
+                <AccordionItem key="1" aria-label="fx_fee" title={`fx_fee (${ aggregator.fx_fee?.length})`}>
+                  <BaseEditableTable 
+                    tableName='fx_fee' 
+                    data={aggregator.fx_fee ??[]} 
+                    dataType={{
+                          'payment_method_id':{type: 'text', editable: true, validation: (value:string) => true},
+                          'prc':{type: 'number', editable: true, validation: (value:number) => !isNaN(value)},
+                          'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'country_code':{type:'text', editable: true, validation: (value:string) => isCountryISOCodeCorrect(value.trim())}, 
+                          'currencies': {type: 'text', editable: true, validation: (value:string) => typeof value === 'string' ? value.split(',').every((currency) =>  isCurrencyISOCodeCorrect(currency.trim())): true}, 
+                          'Action': { type: '', editable: false }}}
+                    columns={['payment_method_id','prc', 'fix', 'country_code','currencies','Action']}
+                    handleSaveRecord={handleSaveRecord} 
+                  />
+  
                 </AccordionItem>
-              <AccordionItem key="2" aria-label="ips" title={`tax_fee (${ aggregator.tax_fee?.length})`}>
-                {renderSettingsTable(aggregator.tax_fee ??[])}
+              <AccordionItem key="2" aria-label="tax_fee" title={`tax_fee (${ aggregator.tax_fee?.length})`}>
+              <BaseEditableTable  
+                tableName='tax_fee' 
+                data={aggregator.tax_fee ??[]} 
+                dataType={{
+                          'payment_method_id':{type: 'text', editable: true, validation: (value:string) => true},
+                          'prc':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'country_code':{type:'text', editable: true, validation:  (value:string) => value ? isCountryISOCodeCorrect(value.trim()):true}, 
+                          'Action': { type: '', editable: false }}}
+                columns={['payment_method_id','prc', 'fix', 'country_code','Action']}
+                handleSaveRecord={handleSaveRecord} 
+              />
+      
               </AccordionItem>
 
             </Accordion>
 
             </div>  
         );
-        // case 'customers':
-        // return (
 
-        //     <CustomersTable companyId={game.company_id} /> 
- 
-        // );
-        default:
-        return null;
-    }
 };
 
   return (
@@ -168,25 +155,13 @@ const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) =
 
       </CardHeader>
       <Divider/>
-      <Tabs aria-label="Options"
-        onSelectionChange={handleTabChange}
-        className='mt-2'
-      >
-        <Tab key="details" title="Details">
+
           <Card>
             <CardBody>
-              {renderTabContent()}
+              {renderFormContent()}
             </CardBody>
           </Card>  
-        </Tab>
-        {/* <Tab key="customers" title="Customers">
-          <Card>
-            <CardBody>
-              {renderTabContent()}
-            </CardBody>
-          </Card>  
-        </Tab> */}
-      </Tabs>
+
     </Card>
 
   );
