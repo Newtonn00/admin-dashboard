@@ -52,7 +52,7 @@ export class PaymentMethodGameSettingsRepository extends BaseRepository<PaymentM
                     const data = rawData.map(this.mapToDataType);
                     
                     return {data, total };
-                }, "get records"
+                }, "read"
             )
         )
 
@@ -74,7 +74,7 @@ export class PaymentMethodGameSettingsRepository extends BaseRepository<PaymentM
                                                     enabled: data.enabled,
     
                                                 }}))
-                }, `update record ${JSON.stringify(data.payment_method_id)}`
+                }, `update`
             )  
         )      
  

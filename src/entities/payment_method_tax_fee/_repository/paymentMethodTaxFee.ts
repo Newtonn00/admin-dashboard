@@ -54,7 +54,7 @@ export class PaymentMethodTaxFeeRepository extends BaseRepository<PaymentMethodT
                     const data = rawData.map(this.mapToDataType);
                     
                     return {data, total };
-                }, "get records"
+                }, "read"
             )
         )
 
@@ -79,7 +79,7 @@ export class PaymentMethodTaxFeeRepository extends BaseRepository<PaymentMethodT
                                                     country_code: data.country_code,
     
                                                 }}))
-                }, `update record ${JSON.stringify(data.aggregator_id)}`
+                }, `update`
             )  
         )      
  

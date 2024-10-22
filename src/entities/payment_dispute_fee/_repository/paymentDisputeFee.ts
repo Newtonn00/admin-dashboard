@@ -53,7 +53,7 @@ export class PaymentDisputeFeeRepository extends BaseRepository<PaymentDisputeFe
                     const data = rawData.map(this.mapToDataType);
                     
                     return {data, total };
-                }, "get records"
+                }, "read"
             )
         )
 
@@ -69,7 +69,7 @@ export class PaymentDisputeFeeRepository extends BaseRepository<PaymentDisputeFe
                                                     fixed_fee_currency: data.fixed_fee_currency,
     
                                                 }}))
-                }, `update record ${JSON.stringify(data.pm_id)}`
+                }, `update`
             )  
         )      
  

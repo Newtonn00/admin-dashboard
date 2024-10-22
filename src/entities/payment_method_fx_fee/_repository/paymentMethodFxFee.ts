@@ -55,7 +55,7 @@ export class PaymentMethodFxFeeRepository extends BaseRepository<PaymentMethodFx
                     const data = rawData.map(this.mapToDataType);
                     
                     return {data, total };
-                }, "get records"
+                }, "read"
             )
         )
 
@@ -86,7 +86,7 @@ export class PaymentMethodFxFeeRepository extends BaseRepository<PaymentMethodFx
                    
                      
                     return updatedData
-                }, `update record ${JSON.stringify(data.aggregator_id)}`
+                }, `update`
             )  
         )      
  

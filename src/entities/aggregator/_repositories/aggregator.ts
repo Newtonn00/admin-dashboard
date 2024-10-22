@@ -63,7 +63,7 @@ export class AggregatorRepository extends BaseRepository<AggregatorEntity> {
             return this.mapToDataType(rawData);
 
 
-        }, `get record ${id}`);
+        }, `read`);
     }
     getRecords(page: number, pageSize: number, whereCondition: Record<string, any>): Promise<{ data: AggregatorEntity[]; total: number; }> {
         return this.handleDatabaseOperation(async () =>{
@@ -97,7 +97,7 @@ export class AggregatorRepository extends BaseRepository<AggregatorEntity> {
 
 
 
-        }, 'get records');
+        }, 'read');
     }
     updateRecord(data: Record<string, any>): Promise<AggregatorEntity> {
 
@@ -117,7 +117,7 @@ export class AggregatorRepository extends BaseRepository<AggregatorEntity> {
 
             return updatedData
 
-        }, `update record ${JSON.stringify(data.id)}`);
+        }, `update`);
 
 
     }
@@ -134,7 +134,7 @@ export class AggregatorRepository extends BaseRepository<AggregatorEntity> {
             });
             return this.mapToDataType(newAggregator);
 
-        }, `create record` )
+        }, `create` )
     }
     getFilter(filter: Record<string, any>): string {
         throw new Error("Method not implemented.");

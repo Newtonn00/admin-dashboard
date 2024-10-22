@@ -39,7 +39,7 @@ export class PaymentMethodFeeRepository extends BaseRepository<PaymentMethodFeeE
                     });
                     
                     return this.mapToDataType(rawData);
-                }, `get record ${id}`
+                }, 'read'
             )
         )        
         
@@ -69,7 +69,7 @@ export class PaymentMethodFeeRepository extends BaseRepository<PaymentMethodFeeE
                     const data = rawData.map(this.mapToDataType);
                     
                     return {data, total };
-                }, "get records"
+                }, "read"
             )
         )
 
@@ -88,7 +88,7 @@ export class PaymentMethodFeeRepository extends BaseRepository<PaymentMethodFeeE
                             min_amount: data.minAmount,
                             country_code: data.country_code,
                         }}))
-                }, `update record ${JSON.stringify(data.id)}`
+                }, `read`
             )  
         )      
  
