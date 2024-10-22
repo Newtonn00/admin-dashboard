@@ -142,7 +142,7 @@ export class TransactionsRepository {
 
                 SELECT payment_id, payment_number, company_id, game_id, user_id,
                         user_name, player_name, item_id, item_name, status,
-                        payment_date, billing_email, amountWithCurrency, amount, currency,
+                        payment_date, billing_email, amount, currency,
                         user_billing_address, created_at, country, fail_reason, fail_reason_code,
                         status_order, publish_time
                 
