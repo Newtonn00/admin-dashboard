@@ -1,13 +1,42 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { getSession } from 'next-auth/react';
 
 export const useSaveData =<T>( endpoint: string) => {
     const [isSaving, setIsSaving] = useState(false);
     const [errorSaving, setError] = useState<string | null>(null);
     const [updatedData, setUpdatedData] = useState<T>();
+    const [user, setUser] = useState<string | null>(null);
+
+    useEffect(() =>
+        {
+            const fetchSession = async () => {
+                const session = await getSession();
+                if (session && session.user) {
+                    setUser(session.user.name ?? null);
+                    
+                }
+                
+                
+            }
+            fetchSession();
+        },[]);
+
+
     const saveData = useCallback(async (dataId: string, data: Record<string, any> = {}) => {
         setIsSaving(true);
         setError(null);
         try {
+            if (user) {
+                data = {
+                    ...data,
+                    user: user,
+                }
+            }else{
+                data = {
+                    ...data,
+                    user: 'unknown',
+                }
+            }
             const response = await fetch(`${endpoint}/${dataId}`, {
                 method: 'PUT',
                 headers: {
@@ -27,7 +56,7 @@ export const useSaveData =<T>( endpoint: string) => {
         } finally {
             setIsSaving(false);
         }
-    }, [endpoint]);
+    }, [endpoint, user]);
 
     return {updatedData, isSaving, errorSaving, saveData };
 };

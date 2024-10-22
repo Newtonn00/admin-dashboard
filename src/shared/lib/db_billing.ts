@@ -5,9 +5,9 @@ declare global {
 }
 
 const dbBillingClient = global.dbBillingClient || new PrismaClient(    
-    {
-         log: ['query', 'info', 'warn', 'error'],
-         }
+    // {
+    //      log: ['query', 'info', 'warn', 'error'],
+    //      }
     );
 
 if (process.env.NODE_ENV !== 'production') {

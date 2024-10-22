@@ -1,25 +1,31 @@
 import { Button, Checkbox, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip } from '@nextui-org/react';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DeleteIcon } from '../Icons/Table/delete-icon';
 import { EditIcon } from '../Icons/Table/edit-icon';
 import { SaveIcon } from '../Icons/Table/save-icon';
 import { CancelIcon } from '../Icons/Table/cancel-icon';
-import { boolean } from 'zod';
 
 interface BaseEditableTableProps{
     tableName: string;
     data:Record<string, any>[];
+    dataType: Record<string, DataType>;
     columns: string[];
-    unEditableFields?: string[];
     handleSaveRecord: (tableName: string, data: Record<string, any>) => void;
 
 }
 
-const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, columns, unEditableFields = [], handleSaveRecord})=>{
+interface DataType{
+    type: 'number' | 'text' | 'checkbox' | '';
+    editable: boolean;
+    validation?: (value: any) => boolean;
+}
+const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, dataType, columns, handleSaveRecord})=>{
     
     const [editIndex, setEditIndex] = useState(-1);
     const [editValues, setEditValues] = useState<Record<string, any>>({});
+    const [isChanged, setIsChanged] = useState(false);
+
 
 
 
@@ -33,19 +39,37 @@ const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, col
         handleSaveRecord(tableName, editValues);
         setEditIndex(-1);
         setEditValues({});
+        setIsChanged(false);
     };
     
     const handleInputChange = (key: string, value: any) => {
-        setEditValues((prev) => ({
-        ...prev,
-        [key]: value,
-        }));
+
+
+        const changedValues = {
+            ...editValues,
+            [key]: value,
+        };
+        setEditValues(changedValues)  
+
+
+        setIsChanged(hasChanges(data[editIndex], changedValues));
     };
     
     const handleCancelClick = () => {
         setEditIndex(-1);
         setEditValues({});
+        setIsChanged(false);
     };
+
+    const hasChanges = (current: Record<string, any>|null, edited:Record<string, any>): boolean =>{
+
+    for (const key in current) {
+        if (current[key]!== edited[key]) {
+        return true;
+        }
+    }
+    return false;
+    }
 
 
     return(
@@ -72,7 +96,7 @@ const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, col
                 
                 {column !== "Action" ? 
 
-                    (editIndex === index && !unEditableFields.includes(column) ? (
+                    (editIndex === index ? (
                        typeof editValues[column] === 'boolean' ?
                         <Checkbox 
                             defaultSelected={editValues[column]}
@@ -83,8 +107,14 @@ const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, col
 
                         :
                         <Input
+                            className="w-fit"
                             value={editValues[column] || ""}
+                            type={dataType[column].type}
                             onChange={(e) => handleInputChange(column, e.target.value)}
+                            isDisabled={!dataType[column].editable}
+                            isInvalid={!dataType[column].validation?.(editValues[column] )}
+                            color={dataType[column].editable ? 'primary' : 'default'}
+
                             
                         />
 
@@ -112,7 +142,7 @@ const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, col
         
                             <div className="relative flex items-center gap-2">
  
-                                <Tooltip color='success' content="Save row">
+                            {isChanged && <Tooltip color='success' content="Save row">
                                     <span 
                                         className="text-lg text-success cursor-pointer active:opacity-50"
                                         onClick={handleSaveClick}
@@ -120,6 +150,7 @@ const BaseEditableTable:React.FC<BaseEditableTableProps> =({tableName, data, col
                                         <SaveIcon />
                                     </span>
                                 </Tooltip>    
+                            }    
                                 <Tooltip color="danger" content="Cancel changes">
                                     <span 
                                         className="text-lg text-danger cursor-pointer active:opacity-50"

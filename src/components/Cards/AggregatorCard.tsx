@@ -9,6 +9,8 @@ import { useLogger } from '@/hooks/useLogger';
 import { API_ENDPOINTS } from '@/shared/config/apiEndpoints';
 import BaseEditableTable from '../Tables/BaseEditableTable';
 import { useSaveData } from '@/hooks/useSaveDataDynamicRoutes';
+import { isCountryISOCodeCorrect } from '@/shared/utils/countries';
+import { isCurrencyISOCodeCorrect } from '@/shared/utils/currencies';
 
 interface PaymentMethodDetailFormProps {
   aggId: string;
@@ -105,15 +107,28 @@ const AggregatorDetailForm: React.FC<PaymentMethodDetailFormProps> = ({aggId}) =
                   <BaseEditableTable 
                     tableName='fx_fee' 
                     data={aggregator.fx_fee ??[]} 
+                    dataType={{
+                          'payment_method_id':{type: 'text', editable: true, validation: (value:string) => true},
+                          'prc':{type: 'number', editable: true, validation: (value:number) => !isNaN(value)},
+                          'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'country_code':{type:'text', editable: true, validation: (value:string) => isCountryISOCodeCorrect(value.trim())}, 
+                          'currencies': {type: 'text', editable: true, validation: (value:string) => typeof value === 'string' ? value.split(',').every((currency) =>  isCurrencyISOCodeCorrect(currency.trim())): true}, 
+                          'Action': { type: '', editable: false }}}
                     columns={['payment_method_id','prc', 'fix', 'country_code','currencies','Action']}
                     handleSaveRecord={handleSaveRecord} 
                   />
-
+  
                 </AccordionItem>
               <AccordionItem key="2" aria-label="tax_fee" title={`tax_fee (${ aggregator.tax_fee?.length})`}>
               <BaseEditableTable  
                 tableName='tax_fee' 
                 data={aggregator.tax_fee ??[]} 
+                dataType={{
+                          'payment_method_id':{type: 'text', editable: true, validation: (value:string) => true},
+                          'prc':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                          'country_code':{type:'text', editable: true, validation:  (value:string) => value ? isCountryISOCodeCorrect(value.trim()):true}, 
+                          'Action': { type: '', editable: false }}}
                 columns={['payment_method_id','prc', 'fix', 'country_code','Action']}
                 handleSaveRecord={handleSaveRecord} 
               />

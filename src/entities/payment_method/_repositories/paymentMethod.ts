@@ -12,7 +12,6 @@ import { paymentMethodGameSettingsRepository } from "@/entities/payment_method_g
 
 
 export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity> {
-
     constructor() {
         super('Payment Method', logger);
     }
@@ -171,7 +170,7 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
                     
                     return updatedData;
                     
-                }, `get record ${id}`     
+                }, 'read'     
             )        
         )
     
@@ -203,7 +202,7 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
                     const data = rawData.map(this.mapToDataType)
                     
                     return {data, total };
-                }, 'get records'
+                }, 'read'
             )
         )
     }
@@ -218,7 +217,7 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
                             {'name': {contains: filter['selectedFields'], mode:'insensitive'}}
                             ]
         }
-
+  
 
         return this.getRecords(page, pageSize, whereCondition);
         
@@ -227,7 +226,6 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
     }
 
     async updateRecord(data:  Record<string, any>): Promise<PaymentMethodEntity>{
-        console.log('repo', data)
         
         return(    
             this.handleDatabaseOperation(
@@ -254,7 +252,7 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
                     //console.log('repo-updated', updatedData)
                     return updatedData
 
-                }, `update record ${JSON.stringify(data.id)}`
+                }, `update`, data
             )  
         )                                  
     }
@@ -281,7 +279,7 @@ export class PaymentMethodRepository extends BaseRepository<PaymentMethodEntity>
                         }, 
                     });
                     return this.mapToDataType(newPaymentMethod);
-                }, `create record`    
+                }, `create`    
             )
         )
         

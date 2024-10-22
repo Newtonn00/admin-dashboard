@@ -85,11 +85,10 @@ useEffect(() => {
     const columns: ColumnType<PaymentMethodEntity>[] = [
         { key: 'id', label: 'ID'},
         { key: 'name', label: 'Name'},
-        { key: 'show', label: 'Show' },
-        { key: 'supported_countries', label: 'Supported Countries' },
-        { key: 'aggregator_id', label: 'Aggregator ID' },
+        { key: 'aggregator_namr', label: 'Aggregator Name' },
         { key: 'caption', label: 'Caption' },
         { key: 'dashboard_show', label: 'Dashboard Show' },
+        { key: 'supported_countries', label: 'Supported Countries' },
         { key: 'supported_currencies', label: 'Supported Currencies' },
     ];
 

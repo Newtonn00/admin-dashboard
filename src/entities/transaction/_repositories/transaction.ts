@@ -30,54 +30,64 @@ export class TransactionsRepository {
             item_id: data.item_id,
             item_name: data.item_name,
             payment_id: data.payment_id,
+            payment_number: data.payment_number,
             status: data.status,
-            payment_method_id: data.payment_method_id,
-            payment_method_name: data.payment_method_name,
+            payment_date: convertISODateToLocaleDateString(data.payment_date['value']),
+            user_billing_address: decryptECB(data.user_billing_address),
+            billing_email: decryptECB(data.billing_email),
             amount: data.amount,
             amountWithCurrency: `${convertAmountWithCurrencyPrecision(data.amount, data.currency)} ${data.currency}`, 
             currency: data.currency,
-            country: data.country,
-            order_id: data.order_id,
-            status_order: data.status_order,
-            fail_reason: data.fail_reason,
-            fail_reason_code: data.fail_reason_code,
-            total_usd: data.total_usd,
-            campaign_id: data.campaign_id,
-            user_campaign_id: data.user_campaign_id,
-            total_usd_revenue: data.total_usd_revenue,
-            wht_rate: data.wht_rate,
-            last_status: data.last_status,
-            user_billing_address: decryptECB(data.user_billing_address),
-            discounts: data.discounts,
-            user_local_price: data.user_local_price,
-            device_type: data.device_type,
-            total_order_currency: data.total_order_currency,
-            total_order_currency_billing: data.total_order_currency_billing,
-            ps_fail_reason_code: data.ps_fail_reason_code,
-            state: data.state,
-            ps_tx_id: data.ps_tx_id,
-            payment_number: data.payment_number,
-            paylink_user_id: data.paylink_user_id,
-            card_last_4_digits: data.card_last_4_digits,
-            card_bin: data.card_bin,
-            card_schemes: data.card_schemes,
-            total: data.total,
-            currency_minor_unit: data.currency_minor_unit,
-            fees: data.fees,
-            taxes: data.taxes,
-            ip: data.ip,
-            created_at: convertTimeStampToLocaleDateString(data.created_at),
-            attributes: data.attributes,
-            subscription_name: data.subscription_name,
-            message_id: data.message_id,
-            publish_time: data.publish_time,
-            billing_email: decryptECB(data.billing_email),
-            payment_date: convertISODateToLocaleDateString(data.payment_date['value']),
-            datahouse_user_id: data.datahouse_user_id,
             payment_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}/transactions/${data.payment_number}`,
             game_link: `${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}`,
             company_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}`,
-            user_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}/game/players/${data.user_id}`
+            user_link:`${process.env.AGHANIM_DASHBOARD_URL}/company/${data.company_id}/${data.game_id}/game/players/${data.user_id}`,
+            created_at: convertTimeStampToLocaleDateString(data.created_at),
+            country: data.country,
+            fail_reason: data.fail_reason,
+            fail_reason_code: data.fail_reason_code,
+            publish_time: data.publish_time,
+            status_order: data.status_order,
+
+            // payment_method_id: data.payment_method_id,
+            // payment_method_name: data.payment_method_name,
+
+            // order_id: data.order_id,
+
+
+            // total_usd: data.total_usd,
+            // campaign_id: data.campaign_id,
+            // user_campaign_id: data.user_campaign_id,
+            // total_usd_revenue: data.total_usd_revenue,
+            // wht_rate: data.wht_rate,
+            // last_status: data.last_status,
+
+            // discounts: data.discounts,
+            // user_local_price: data.user_local_price,
+            // device_type: data.device_type,
+            // total_order_currency: data.total_order_currency,
+            // total_order_currency_billing: data.total_order_currency_billing,
+            // ps_fail_reason_code: data.ps_fail_reason_code,
+            // state: data.state,
+            // ps_tx_id: data.ps_tx_id,
+
+            // paylink_user_id: data.paylink_user_id,
+            // card_last_4_digits: data.card_last_4_digits,
+            // card_bin: data.card_bin,
+            // card_schemes: data.card_schemes,
+            // total: data.total,
+            // currency_minor_unit: data.currency_minor_unit,
+            // fees: data.fees,
+            // taxes: data.taxes,
+            // ip: data.ip,
+
+            // attributes: data.attributes,
+            // subscription_name: data.subscription_name,
+            // message_id: data.message_id,
+
+
+
+            // datahouse_user_id: data.datahouse_user_id,
 
         }
     
@@ -99,7 +109,6 @@ export class TransactionsRepository {
 
             whereCondition = `  (user_id LIKE '%${filter['selectedFields']}%'
                                 OR payment_id LIKE '%${filter['selectedFields']}%'
-                                OR ip LIKE '%${filter['selectedFields']}%'
                                 OR payment_number LIKE '%${filter['selectedFields']}%'
                                 OR billing_email = '${encryptedField}'
                                 OR user_name = '${encryptedField}')`
@@ -131,7 +140,13 @@ export class TransactionsRepository {
             const offset = (page - 1) * pageSize;
             const query = `
 
-                SELECT * FROM events.payments
+                SELECT payment_id, payment_number, company_id, game_id, user_id,
+                        user_name, player_name, item_id, item_name, status,
+                        payment_date, billing_email, amountWithCurrency, amount, currency,
+                        user_billing_address, created_at, country, fail_reason, fail_reason_code,
+                        status_order, publish_time
+                
+                FROM events.payments
                 WHERE ${whereCondition} 
                 QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1
                 ORDER BY created_at desc

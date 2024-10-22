@@ -1,3 +1,4 @@
+type OperationType='update'|'read'|'delete'|'create'
 
 
 export abstract class BaseRepository<T> {
@@ -19,21 +20,27 @@ export abstract class BaseRepository<T> {
 
     abstract mapToDataType(data: any): T;
 
-    protected async handleDatabaseOperation<U>(operation: () => Promise<U>, operationName?: string): Promise<U> {
+    protected async handleDatabaseOperation<U>(operation: () => Promise<U>, operationName: OperationType, changedData?: Record<string, any> ): Promise<U> {
         try {
+
+            if (['update'].includes(operationName)) {
+                this.logger.info({ msg: `Entity ${this.entityName} operation ${operationName} data`,changedData, user: changedData ? changedData.user ?  changedData.user: 'undefined' :'undefined' });
+                
+            }
             return await operation();
+
         } catch (error) {
         if (error instanceof Error) {
             this.logger.error({
-            msg: `${this.entityName} Repository Error. Failed to retrieve ${this.entityName} data`,
+            msg: `${this.entityName} Repository Error. Failed to process ${this.entityName} data during ${operationName} operaton`,
             error: error.message,
             stack: error.stack,
             });
             
         } else {
-            this.logger.error(`${this.entityName} Repository Error. An unknown error occurred`);
+            this.logger.error(`${this.entityName} Repository Error during ${operationName} operaton. An unknown error occurred`);
         }
-        throw new Error(`Failed to retrieve ${this.entityName} data`);
+        throw new Error(`Failed to process ${this.entityName} data during ${operationName} operaton`);
         }
     }
 

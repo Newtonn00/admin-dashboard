@@ -23,9 +23,9 @@ export const useDataFetcher = <T>() => {
                 }
                 setData([data]);
                 setTotal(1);
-                console.log('hookData', data);
             }else{
                 const filterFields = { ...selectedFilterValue };
+                console.log('hookFilter', filterFields, selectedFilterValue);
                 const response = await fetch(`${endpoint}?page=${page}&pageSize=${pageSize}&filter=${encodeURIComponent(JSON.stringify(filterFields))}`);
                 const { success, data, total } = await response.json();
                 if (!success) {

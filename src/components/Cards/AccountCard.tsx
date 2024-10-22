@@ -204,7 +204,7 @@ const AccountDetailForm: React.FC<AccountDetailFormProps> = ({accountId}) => {
                   handleConfirmVerifyStateChanging();
                   onClose();
                 }}>
-                  Confirm
+                  Accept
                 </Button>
               </ModalFooter>
             </>

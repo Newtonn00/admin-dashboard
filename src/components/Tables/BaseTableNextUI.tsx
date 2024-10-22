@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { SearchIcon } from '../Icons/Table/search-icon';
-import {parseDate} from "@internationalized/date";
-import {LinkType, ColumnType} from "@/types/tableTypes"
+import React from 'react';
+import {ColumnType} from "@/types/tableTypes"
 import {
     Table,
     TableHeader,
@@ -13,7 +11,7 @@ import {
     TableCell,
 } from "@nextui-org/table"
 
-import { Button, Chip, DateRangePicker, DateValue, Input, Pagination, RangeValue, Select, SelectItem } from '@nextui-org/react';
+import { Chip, Pagination, RangeValue, Select, SelectItem } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loader from '../Common/Loader';
@@ -215,6 +213,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
     return (
         <div className="flex flex-col gap-3">
             <Table 
+                isHeaderSticky
                 color={selectedColor}
                 selectionMode="single" 
                 defaultSelectedKeys={["2"]} 

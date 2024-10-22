@@ -13,6 +13,10 @@ import { EditIcon } from '../Icons/Table/edit-icon';
 import { DeleteIcon } from '../Icons/Table/delete-icon';
 import { SaveIcon } from '../Icons/Table/save-icon';
 import { CancelIcon } from '../Icons/Table/cancel-icon';
+import { isCountryISOCodeCorrect } from '@/shared/utils/countries';
+import { isCurrencyISOCodeCorrect } from '@/shared/utils/currencies';
+import ModalForm from '../Modal/ModalForm';
+
 
 interface PaymentMethodDetailFormProps {
   pmId: string;
@@ -22,12 +26,13 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
 
     const [isEditable, setIsEditable] = useState(false);
     const [isChanged, setIsChanged] = useState(false);
+    const [validationState, setValidationState] = useState<Record<string, boolean>>({});
     const [editedValues, setEditedValues] = useState<Record<string, any>|null>(null);
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const [updatedData, setUpdatedData] = useState<Record<string,any>|null>(null)
-    const[paymentMethod, setPaymentMethod] = useState<PaymentMethodEntity|null>(null);
-    const [linkValue, setLinkValue] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethodEntity|null>(null);
+
 //getting game details
     const {data, isLoading, error, total, fetchData } = useDataFetcher<PaymentMethodEntity>();
     //getting function for posting logs
@@ -56,6 +61,13 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
     useEffect(() => {
       if (data.length > 0) {
         setPaymentMethod(data[0]);
+        setEditedValues(data[0]);
+        const initialValidationState: Record<string, boolean> = {};
+        Object.keys(data[0]).forEach(key => {initialValidationState[key] = true});
+        setValidationState(initialValidationState);
+
+
+
       }
     }, [data]);
 
@@ -66,12 +78,6 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
         setPaymentMethod(savedData);
       }
     }, [savedData]);
-
-    // useEffect(() =>{
-    //   if (linkValue){
-    //       logMessage(`Link fetched: ${linkValue}`)
-    //   }    
-    // },[linkValue]);
     
 
 
@@ -86,8 +92,24 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
     }
     
     const handleCancelButtonClick=() => {
+
+      
+        if (isChanged) {
+          setIsModalOpen(true);
+        } else {
+          setIsEditable(false);
+        }
+    }
+
+    const clearChanges = () => {
+      
       setIsEditable(false);
       setIsChanged(false);
+      setIsModalOpen(false);
+      setEditedValues(paymentMethod);
+      const initialValidationState: Record<string, boolean> = {};
+      Object.keys(data[0]).forEach(key => {initialValidationState[key] = true});
+      setValidationState(initialValidationState);
 
     }
 
@@ -101,12 +123,30 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
     const handleInputChange=(fieldName: string, value: any) =>{
 
       const changedValues = {
-        ...paymentMethod,
+        ...editedValues,
         [fieldName]: value,
       };
+
+      setValidationState({...validationState, [fieldName]: isCodesValid(fieldName,value)})
       setIsChanged(hasChanges(paymentMethod, changedValues));
       setEditedValues(changedValues);
+
+
     }
+
+    const isCodesValid = (fieldName:string, codeList: string):boolean =>{
+      
+      switch (fieldName){
+        case 'supported_countries':
+          return codeList.split(',').every((country) =>  isCountryISOCodeCorrect(country.trim()));
+
+        case 'supported_currencies':
+          return codeList.split(',').every((currency) =>  isCurrencyISOCodeCorrect(currency.trim()));
+        default:
+          return true;
+      };
+    }
+
 
     const hasChanges = (current: Record<string, any>|null, edited:Record<string, any>): boolean =>{
 
@@ -155,7 +195,7 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                 <label className="block text-md font-medium mr-4">Caption:</label>
 
                 <Input className="text-sm font-medium w-fit"
-                  defaultValue={paymentMethod.caption}
+                  value={editedValues?.caption}
                   disabled = {!isEditable}
                   color={isEditable ? 'primary' : 'default'}
                   onChange={(e) => handleInputChange("caption", e.target.value)}
@@ -167,10 +207,10 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                 <label className="block text-md font-medium mr-4">Logo URL:</label>
 
                 <Input className="text-sm font-medium w-70"
-                  defaultValue={paymentMethod.logo_url}
+                  value={editedValues?.logo_url}
                   disabled = {!isEditable}
                   color={isEditable ? 'primary' : 'default'}
-                  style={{ width: `${paymentMethod.logo_url.length + 2}ch` }}
+                  style={{ width: `${editedValues?.logo_url.length + 2}ch` }}
                   onChange={(e) => handleInputChange("logo_url", e.target.value)}
                 />
               </div>
@@ -179,11 +219,12 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
               <div className="flex items-center mb-4">
                 <label className="block text-md font-medium mr-4">Aggregator ID:</label>
                 <Input className="text-sm font-medium w-70"
-                  defaultValue={paymentMethod.aggregator_id}
+                  value={paymentMethod.aggregator_id}
                   disabled={!isEditable}
                   color={isEditable ? 'primary' : 'default'}
-                  style={{ width: `${paymentMethod.aggregator_id.length + 2}ch` }}
+                  style={{ width: `${editedValues?.aggregator_id.length + 2}ch` }}
                   onChange={(e) => handleInputChange("aggregator_id", e.target.value)}
+                  isRequired
                   
                 />
                 
@@ -192,7 +233,7 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
 
               <div className="flex items-center mb-4">
                 <label className="block text-md font-medium mr-4">Aggregator Name:</label>
-                <p className="text-sm font-medium">{paymentMethod.aggregator_name}</p>
+                <p className="text-sm font-medium">{editedValues?.aggregator_name}</p>
               </div>
 
               
@@ -201,31 +242,38 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                 <label className="block text-md font-medium mr-4">Dashboard Show:</label>
 
                 <Checkbox 
-                  defaultSelected={paymentMethod.dashboard_show}
+                  isSelected={editedValues?.dashboard_show}
                   onChange={(e) => handleInputChange("dashboard_show", e.target.checked)}
                   color={isEditable ? 'primary' : 'default'}
-                  disabled = {!isEditable}
+                  isDisabled={!isEditable}
+                  size='lg'
                 />
+
+
+
 
               </div>
 
               <div className="flex items-center mb-4">
                 <label className="block text-md font-medium mr-4">Supported Countries:</label>
                 <Input className="text-sm font-medium w-fit"
-                  defaultValue={paymentMethod.supported_countries}
+                  value={editedValues?.supported_countries}
                   disabled = {!isEditable}
                   color={isEditable ? 'primary' : 'default'}
                   onChange={(e) => handleInputChange("supported_countries", e.target.value)}
+                  isInvalid={!validationState["supported_countries"]}
                 />
               </div>
 
               <div className="flex items-center mb-4">
                 <label className="block text-md font-medium mr-4">Supported Currencies:</label>
                 <Input className="text-sm font-medium w-fit"
-                  defaultValue={paymentMethod.supported_currencies}
+                  //defaultValue={paymentMethod.supported_currencies}
+                  value={editedValues?.supported_currencies}
                   disabled = {!isEditable}
                   color={isEditable ? 'primary' : 'default'}
                   onChange={(e) => handleInputChange("supported_currencies", e.target.value)}
+                  isInvalid={!validationState["supported_currencies"]}
                 />
 
               </div>
@@ -236,6 +284,12 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                   <BaseEditableTable 
                     tableName='fee' 
                     data={paymentMethod.fee ??[]} 
+
+                    dataType={{'prc':{type: 'number', editable: true, validation: (value:number) => !isNaN(value)},
+                              'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                              'minAmount':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},                
+                              'Action': { type: '', editable: false }}}
+
                     columns={['prc', 'fix', 'minAmount','Action']}
                     handleSaveRecord={handleSaveRecord} 
                   />
@@ -244,6 +298,13 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                   <BaseEditableTable 
                     tableName='fx_fee' 
                     data={paymentMethod.fx_fee ??[]} 
+
+                    dataType={{'prc':{type: 'number', editable: true, validation: (value:number) => !isNaN(value)},
+                    'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                    'country_code':{type:'text', editable: true, validation: (value:string) => value ? isCountryISOCodeCorrect(value.trim()) : true}, 
+                    'currencies': {type: 'text', editable: true, validation: (value:string) => typeof value === 'string' ? value.split(',').every((currency) =>  isCurrencyISOCodeCorrect(currency.trim())) : true}, 
+          
+                    'Action': { type: '', editable: false }}}
                     columns={['prc', 'fix', 'country_code','currencies','Action']}
                     handleSaveRecord={handleSaveRecord}
                   />
@@ -252,6 +313,12 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                   <BaseEditableTable 
                     tableName='tax_fee' 
                     data={paymentMethod.tax_fee ??[]} 
+
+                    dataType={{'prc':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                              'fix':{type: 'number', editable: true, validation:  (value:number) => !isNaN(value)},
+                              'country_code':{type:'text', editable: true, validation:  (value:string) => value ? isCountryISOCodeCorrect(value.trim()) : true}, 
+                              'Action': { type: '', editable: false }}}
+                    
                     columns={['prc', 'fix', 'country_code','Action']}
                     handleSaveRecord={handleSaveRecord} 
                   />
@@ -260,6 +327,12 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                   <BaseEditableTable 
                     tableName='dispute_fee' 
                     data={paymentMethod.dispute_fee ??[]} 
+                   
+                    dataType={{'dispute_type': {type: 'text', editable: false}, 
+                              'fix':  {type: 'number', editable: true, validation:  (value:number) => !isNaN(value)}, 
+                              'currency_code': {type: 'text', editable: true, validation: (value:string) => value ? isCurrencyISOCodeCorrect(value.trim()) : true}, 
+                              'Action': { type: '', editable: false }}}
+
                     columns={['dispute_type', 'fix', 'currency_code','Action']}
                     handleSaveRecord={handleSaveRecord} 
                   />
@@ -268,8 +341,11 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
                   <BaseEditableTable 
                     tableName='game_settings' 
                     data={paymentMethod.game_settings ??[]} 
+                    dataType={{'game_id':{type:'text', editable: false, validation:(value:string)=>true},
+                              'enabled':{type:'checkbox', editable: true}, 
+                              'Action': { type: '', editable: false }}}
                     columns={['game_id', 'enabled', 'Action']}
-                    unEditableFields={['game_id']}
+
                     handleSaveRecord={handleSaveRecord} 
                   />
                 </AccordionItem>
@@ -281,77 +357,95 @@ const PaymentMethodDetailForm: React.FC<PaymentMethodDetailFormProps> = ({pmId})
 };
 
   return (
+    <>
+      <Card className="w-full min-w-[600px]">
+        <CardHeader className="flex gap-3 items-center justify-between"> 
+          <div className="flex flex-col">
+            <p className="text-lg font-semibold">Payment Method Details</p>
 
-    <Card className="w-full min-w-[600px]">
-      <CardHeader className="flex gap-3 items-center justify-between"> 
-        <div className="flex flex-col">
-          <p className="text-lg font-semibold">Payment Method Details</p>
+              <div className="flex items-center" >
+                {paymentMethod.logo_url && (
+                <img 
+                  src={paymentMethod.logo_url} 
+                  alt={`${paymentMethod.name} logo`} 
+                  className="h-6 w-auto" 
+                />
+                )}
+                <p className="text-lg text-default-500 ml-2" >{paymentMethod.caption + ' ' + paymentMethod.aggregator_name}</p>
+              </div>
+              
+          </div>
 
-            <div className="flex items-center" >
-              {paymentMethod.logo_url && (
-              <img 
-                src={paymentMethod.logo_url} 
-                alt={`${paymentMethod.name} logo`} 
-                className="h-6 w-auto" 
-              />
-              )}
-              <p className="text-lg text-default-500 ml-2" >{paymentMethod.caption + ' ' + paymentMethod.aggregator_name}</p>
+          <div  className='flex space-x-2 flex-nowrap'>
+                    
+            {!isEditable ?
+
+            <div className="relative flex items-center gap-2">
+
+                <Tooltip color='primary' content="Edit card">
+                <Button className="text-lg text-primary bg-white-500 hover:bg-gray-200"
+                  onClick={() =>handleEditButtonClick()}
+                >
+                        <EditIcon />
+                    </Button>
+                </Tooltip>    
+                <Tooltip color="danger" content="Delete card">
+                    <Button className="text-lg text-danger bg-white-500 hover:bg-gray-200">
+                        <DeleteIcon />
+                    </Button>
+                </Tooltip>
             </div>
+            :
+            <div className="relative flex items-center gap-2">
             
-        </div>
-
-        <div  className='flex space-x-2 flex-nowrap'>
-                  
-          {!isEditable ?
-
-          <div className="relative flex items-center gap-2">
-
-              <Tooltip color='primary' content="Edit card">
-              <Button className="text-lg text-primary bg-white-500 hover:bg-gray-200"
-                onClick={() =>handleEditButtonClick()}
-              >
-                      <EditIcon />
-                  </Button>
-              </Tooltip>    
-              <Tooltip color="danger" content="Delete card">
-                  <Button className="text-lg text-danger bg-white-500 hover:bg-gray-200">
-                      <DeleteIcon />
+              {!Object.values(validationState).includes(false) && isChanged && <Tooltip color='success' content="Save card">
+                <Button 
+                    className="text-lg text-success bg-white-500 hover:bg-gray-200"                          
+                    onClick={handleSaveButtonClick}
+                >
+                    <SaveIcon />  
+                </Button>
+              </Tooltip> }   
+              <Tooltip color="danger" content="Cancel changes">
+                  <Button 
+                      className="text-lg text-danger bg-white-500 hover:bg-gray-200"
+                      onClick={handleCancelButtonClick}
+                  >
+                      <CancelIcon />
                   </Button>
               </Tooltip>
+            </div>
+            }
+
           </div>
-          :
-          <div className="relative flex items-center gap-2">
-          
-            {isChanged && <Tooltip color='success' content="Save card">
-              <Button 
-                  className="text-lg text-success bg-white-500 hover:bg-gray-200"                          
-                  onClick={handleSaveButtonClick}
-              >
-                  <SaveIcon />  
-              </Button>
-            </Tooltip> }   
-            <Tooltip color="danger" content="Cancel changes">
-                <Button 
-                    className="text-lg text-danger bg-white-500 hover:bg-gray-200"
-                    onClick={handleCancelButtonClick}
-                >
-                    <CancelIcon />
-                </Button>
-            </Tooltip>
-          </div>
-          }
 
-        </div>
+        </CardHeader>
+        <Divider/>
 
-      </CardHeader>
-      <Divider/>
+            <Card>
+              <CardBody>
+                {renderCardContent()}
+              </CardBody>
+            </Card>  
+      </Card>
 
-          <Card>
-            <CardBody>
-              {renderCardContent()}
-            </CardBody>
-          </Card>  
-    </Card>
+      <ModalForm 
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        headerText={'Confirmation'} 
+        BodyComponent={() => {
+          return <><p>Unsaved changes will be canceled.<br />
+            Please, confirm your action
+            </p></>
+        }}
+        handleCancelExtended={() => {null}}
+        
+        handleConfirmExtended={clearChanges}      
+      
+      />
+
+    </>
+
 
   );
 };
