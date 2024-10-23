@@ -13,7 +13,7 @@ const TableTransaction = () => {
 
   const [linkValue, setLinkValue] = useState('');
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20); 
   const { logMessage } = useLogger();
   const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, handleCurrentPageChange, currentPage} = useFilter();
   const [initialized, setInitialized] = useState(false);  

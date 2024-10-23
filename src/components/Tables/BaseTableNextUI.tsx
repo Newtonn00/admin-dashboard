@@ -228,7 +228,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 ) : null
                 }
                 classNames={{
-                base: "max-h-[820px] overflow-scroll",
+                base: "max-h-[700px] overflow-scroll",
                 table: "min-h-[400px]",
                 }}
 
