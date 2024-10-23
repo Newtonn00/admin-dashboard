@@ -132,16 +132,8 @@ return (
             isLoading={isLoading}
             error={error}
             routeName='/account-card/'
-            filterValue={filterValue}
-            //onSetPageNumber={setCurrentPage}
-            onSetPageSize={setPageSize}
-            //onFilterChange={handleFilterChange}
-            //onFilterSubmit={handleFilterSubmit}
+            onSetPageSize={setPageSize}   
             onLinkClick={handleLinkClick}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-            //onSetDateRangeValue={handleDateRangeChange}
-
 
         />
     </div>

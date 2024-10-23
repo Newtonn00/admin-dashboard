@@ -8,20 +8,23 @@ import { useLogger } from "@/hooks/useLogger";
 import { API_ENDPOINTS } from '@/shared/config/apiEndpoints';
 import { useDataFetcher } from '@/hooks/useDataFetcher';
 import { useFilter } from "../Navbar/filter-context";
+import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 
 const TableTransaction = () => {
 
   const [linkValue, setLinkValue] = useState('');
-  //const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [filterValue, setFilterValue] = useState('');
-//  const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>>();
   const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
   const { logMessage } = useLogger();
+  const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, handleCurrentPageChange, currentPage} = useFilter();
+  const [initialized, setInitialized] = useState(false);  
 
-  const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, currentPage} = useFilter();
-  const [initialized, setInitialized] = useState(false);
+
+  const [transactionsData, setTransactionsData] = useState<TransactionEntity[]>([]);
+  const [hasMoreRecords, setHasMoreRecords] = useState(false);
+
   useEffect(() => {
 
     if (setShowFilters)
@@ -67,6 +70,29 @@ useEffect(() => {
     setTotalPages(Math.ceil(total / pageSize));
 
 },[total]);
+
+
+useEffect(() => {
+
+  setTransactionsData((prevTransactionsData) => [...prevTransactionsData, ...transactions])
+  if(transactions.length < pageSize){
+
+    setHasMoreRecords(false);
+  } else{
+    setHasMoreRecords(true);
+  }
+
+}, [transactions])
+
+
+const [loaderRef, scrollerRef] = useInfiniteScroll({
+  hasMore: hasMoreRecords,
+  onLoadMore: () => {
+    if (hasMoreRecords && handleCurrentPageChange) {
+      handleCurrentPageChange(currentPage ?? 0+1);
+    }
+  },
+});
 
 useEffect(() =>{
   if (linkValue){
@@ -142,19 +168,12 @@ const handleLinkClick = (linkValue: string) => {
             data={transactions}
             columns={columns}
             totalValue={total}
-            //currentPage={currentPage}
             totalPages={totalPages}
             pageSize={pageSize}
             isLoading={isLoading}
             error={error}
-            filterValue={filterValue}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-            onSetDateRangeValue={handleDateRangeChange}
-            //onSetPageNumber={setCurrentPage}
+            hasMoreRecords={hasMoreRecords}
             onSetPageSize={setPageSize}
-            onFilterChange={handleFilterChange}
-            onFilterSubmit={handleFilterSubmit}
             onLinkClick={handleLinkClick}
 
         />

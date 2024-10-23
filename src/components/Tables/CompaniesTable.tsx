@@ -111,21 +111,13 @@ return (
         <BaseTableNextUI
             data={companies}
             columns={columns}
-            //currentPage={currentPage}
             pageSize={pageSize}
             totalPages={totalPages}
             isLoading={isLoading}
             error={error}
-            filterValue={filterValue}
             routeName='/company-card/'
-            //onSetPageNumber={setCurrentPage}
             onSetPageSize={setPageSize}
-            onFilterChange={handleFilterChange}
-            onFilterSubmit={handleFilterSubmit}
-            onLinkClick={handleLinkClick}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-            onSetDateRangeValue={handleDateRangeChange}
+            onLinkClick={handleLinkClick} 
 
 
         />

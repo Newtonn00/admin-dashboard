@@ -103,12 +103,8 @@ return (
             isLoading={isLoading}
             error={error}
             routeName='/payment-method-card/'
-            filterValue={filterValue}
             onSetPageSize={setPageSize}
             onLinkClick={handleLinkClick}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-
 
 
         />
