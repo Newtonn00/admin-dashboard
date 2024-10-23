@@ -74,11 +74,12 @@ const BaseTableNextUI = <T extends Record<string, any>>({
         onLinkClick(link);
     }
 
+
     const [loaderRef, scrollerRef] = useInfiniteScroll({
         hasMore: hasMoreRecords,
         onLoadMore: () => {
-        if (hasMoreRecords && handleCurrentPageChange) {
-            handleCurrentPageChange(currentPage ?? 0+1);
+        if (handleCurrentPageChange) {
+            handleCurrentPageChange((currentPage ?? 0)+1);
         }
         },
     });
@@ -155,7 +156,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                     {totalPages > 0 ? (
                         <div className='flex w-full justify-between'>
                         <div className="flex w-full justify-center">
-                            <Pagination
+                           {!infinitePagination && <Pagination
                                 size='sm'
                                 isCompact
                                 showControls
@@ -164,7 +165,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                                 page={currentPage}
                                 total={totalPages}
                                 onChange={(page) => handleCurrentPageChange?.(page)}
-                            />
+                            />}
                         </div>
                         
 
@@ -222,12 +223,12 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 bottomContent={
                 infinitePagination && hasMoreRecords ? (
                     <div className="flex w-full justify-center">
-                    <Spinner ref={loaderRef} color="primary" />
+                        <Spinner ref={loaderRef} color="default" />
                     </div>
                 ) : null
                 }
                 classNames={{
-                base: "max-h-[520px] overflow-scroll",
+                base: "max-h-[820px] overflow-scroll",
                 table: "min-h-[400px]",
                 }}
 

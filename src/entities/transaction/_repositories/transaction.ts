@@ -24,6 +24,8 @@ export class TransactionsRepository {
             user_id: data.user_id,
             company_name: companyMap[data.company_id],
             game_name: gameMap[data.game_id],
+ 
+
             player_id: decryptECB(data.player_id),
             user_name: decryptECB(data.user_name),
             player_name: decryptECB(data.player_name),
@@ -156,16 +158,17 @@ export class TransactionsRepository {
             const options = {query: query, params: {pageSize: pageSize, offset:offset}}
             const [rows] = await bigquery.query(options);
             
-            const totalQuery = `
-                SELECT COUNT(*) as total
-                FROM 
-                (SELECT * FROM events.payments
-                WHERE ${whereCondition}
-                QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1)`;
+            // const totalQuery = `
+            //     SELECT COUNT(*) as total
+            //     FROM 
+            //     (SELECT * FROM events.payments
+            //     WHERE ${whereCondition}
+            //     QUALIFY ROW_NUMBER() OVER (PARTITION BY payment_number  ORDER BY status_order desc, publish_time desc) = 1)`;
                 
 
-            const [totalRows] = await bigquery.query(totalQuery);
-            const total = totalRows[0].total;
+            // const [totalRows] = await bigquery.query(totalQuery);
+            // const total = totalRows[0].total;
+            const total = 0;
 
             
             // Fetch company and game names from database for mapping purposes.
