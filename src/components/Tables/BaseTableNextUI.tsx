@@ -225,10 +225,15 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                     </div>
                 ) : null
                 }
+                // classNames={{
+                // base: "max-h-[700px] overflow-scroll",
+                // table: "min-h-[400px]",
+                // }}
+
                 classNames={{
-                base: "max-h-[700px] overflow-scroll",
-                table: "min-h-[400px]",
-                }}
+                    base: "max-h-[90vh] overflow-auto", 
+                    table: "w-[90vw]",
+                  }}
 
 
 
