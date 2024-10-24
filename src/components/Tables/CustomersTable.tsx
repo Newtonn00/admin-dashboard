@@ -134,6 +134,7 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
             data={customers}
             columns={columns}
             pageSize={pageSize}
+            totalValue={total}
             totalPages={totalPages}
             isLoading={isLoading}
             error={error}

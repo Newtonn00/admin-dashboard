@@ -63,12 +63,6 @@ const TableTransaction = () => {
 }, [initialized, currentPage, pageSize, complexFilterValue]);
 
 
-useEffect(() => {
-
-    setTotalPages(Math.ceil(total / pageSize));
-
-},[total]);
-
 
 useEffect(() => {
 
@@ -139,7 +133,6 @@ const handleLinkClick = (linkValue: string) => {
         <BaseTableNextUI
             data={transactionsData}
             columns={columns}
-            totalValue={total}
             totalPages={totalPages}
             pageSize={pageSize}
             isLoading={isLoading}

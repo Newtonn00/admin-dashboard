@@ -126,7 +126,6 @@ return (
             data={accounts}
             columns={columns}
             totalValue={totalValue}
-            //currentPage={currentPage}
             pageSize={pageSize}
             totalPages={totalPages}
             isLoading={isLoading}

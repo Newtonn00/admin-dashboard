@@ -112,6 +112,7 @@ return (
             data={companies}
             columns={columns}
             pageSize={pageSize}
+            totalValue={total}
             totalPages={totalPages}
             isLoading={isLoading}
             error={error}

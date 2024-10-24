@@ -14,7 +14,6 @@ import {
 import { Chip, Pagination, RangeValue, Select, SelectItem, Spinner } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loader from '../Common/Loader';
 import {useFilter} from "../Navbar/filter-context";
 import { useInfiniteScroll } from '@nextui-org/use-infinite-scroll';
 
@@ -23,7 +22,6 @@ type ColorType = "default" | "primary" | "secondary" | "success" | "warning" | "
 interface BaseTableProps<T> {
     data: T[];
     columns: ColumnType<T>[];
-    infi?: string;
     hasMoreRecords?: boolean;
     infinitePagination?: boolean;
     totalValue?: number;

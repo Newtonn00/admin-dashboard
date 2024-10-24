@@ -110,6 +110,7 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
             columns={columns}
             pageSize={pageSize}
             totalPages={totalPages}
+            totalValue={total}
             isLoading={isLoading}
             error={error}
             routeName='/player-card/'
