@@ -11,32 +11,26 @@ import {
     TableCell,
 } from "@nextui-org/table"
 
-import { Chip, Pagination, RangeValue, Select, SelectItem } from '@nextui-org/react';
+import { Chip, Pagination, RangeValue, Select, SelectItem, Spinner } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Loader from '../Common/Loader';
 import {useFilter} from "../Navbar/filter-context";
+import { useInfiniteScroll } from '@nextui-org/use-infinite-scroll';
 
 
 type ColorType = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 interface BaseTableProps<T> {
     data: T[];
     columns: ColumnType<T>[];
+    hasMoreRecords?: boolean;
+    infinitePagination?: boolean;
     totalValue?: number;
-    //currentPage: number;
     pageSize: number;
     totalPages: number;
     isLoading?: boolean;
     error?: string | null;
-    filterValue: string;
     routeName?: string;
-    isDateRange?: boolean;
-    dateRangeValue?: string[]|null;
-    onSetDateRangeValue?: (dateRangeValue: string[]|null) => void;
-    //onSetPageNumber(pageNumber: number): void;
     onSetPageSize(pageSize: number): void;
-    onFilterChange?: (filterValue: string) => void;
-    onFilterSubmit?: () => void;
     onLinkClick: (link:string) => void;
  
 }
@@ -47,20 +41,15 @@ const BaseTableNextUI = <T extends Record<string, any>>({
     data,
     columns,
     totalValue,
-    //currentPage,
     pageSize,
     totalPages,
-    filterValue,
     isLoading,
     error,
     routeName = "none",
-    isDateRange = false,
-    dateRangeValue,
-    onSetDateRangeValue,
-    //onSetPageNumber,
+    hasMoreRecords=false,
+    infinitePagination=false,
     onSetPageSize,
-    onFilterChange,
-    onFilterSubmit,
+ 
     onLinkClick,
 
 }: BaseTableProps<T>) => {
@@ -82,6 +71,16 @@ const BaseTableNextUI = <T extends Record<string, any>>({
     const handleLinkClick=(link: string)=>{
         onLinkClick(link);
     }
+
+
+    const [loaderRef, scrollerRef] = useInfiniteScroll({
+        hasMore: hasMoreRecords,
+        onLoadMore: () => {
+        if (handleCurrentPageChange) {
+            handleCurrentPageChange((currentPage ?? 0)+1);
+        }
+        },
+    });
 
 // rendering table cell content
     const TableCellContent = (
@@ -155,7 +154,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                     {totalPages > 0 ? (
                         <div className='flex w-full justify-between'>
                         <div className="flex w-full justify-center">
-                            <Pagination
+                           {!infinitePagination && <Pagination
                                 size='sm'
                                 isCompact
                                 showControls
@@ -164,7 +163,7 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                                 page={currentPage}
                                 total={totalPages}
                                 onChange={(page) => handleCurrentPageChange?.(page)}
-                            />
+                            />}
                         </div>
                         
 
@@ -193,11 +192,8 @@ const BaseTableNextUI = <T extends Record<string, any>>({
 
             </>
         )
-    }, [filterValue, dateRangeValue, pageSize, totalPages, currentPage, totalValue]);     
+    }, [ pageSize, totalPages, currentPage, totalValue]);     
 
-    if (isLoading) {
-        return <Loader />;
-    } 
     
     if (error) {
         
@@ -221,6 +217,27 @@ const BaseTableNextUI = <T extends Record<string, any>>({
                 topContent={topContent}
                 topContentPlacement='outside'
                 aria-label='qwe'
+                baseRef={scrollerRef}
+                bottomContent={
+                infinitePagination && hasMoreRecords ? (
+                    <div className="flex w-full justify-center">
+                        <Spinner ref={loaderRef} color="default" />
+                    </div>
+                ) : null
+                }
+                // classNames={{
+                // base: "max-h-[700px] overflow-scroll",
+                // table: "min-h-[400px]",
+                // }}
+
+                classNames={{
+                    base: "max-h-[90vh] overflow-auto", 
+                    table: "w-[90vw]",
+                  }}
+
+
+
+
                 >
                 <TableHeader columns={columns}>
                     {(column) => <TableColumn key={String(column.key)}>
@@ -230,7 +247,12 @@ const BaseTableNextUI = <T extends Record<string, any>>({
 
                 </TableHeader>
 
-                    <TableBody>
+                    <TableBody
+                    
+                        isLoading={isLoading}
+                        loadingContent={<Spinner color="primary" />}
+                    >
+                        
 
                         {data.map((row, rowIndex) => (
                             <TableRow key={rowIndex}

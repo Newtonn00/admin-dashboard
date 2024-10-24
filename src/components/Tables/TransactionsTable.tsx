@@ -12,16 +12,16 @@ import { useFilter } from "../Navbar/filter-context";
 const TableTransaction = () => {
 
   const [linkValue, setLinkValue] = useState('');
-  //const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [filterValue, setFilterValue] = useState('');
-//  const [complexFilterValue, setComplexFilterValue] = useState<Record<string, any>>();
-  const [dateRangeValue, setDateRangeValue] = useState<string[] | null>(null);
+  const [pageSize, setPageSize] = useState(20); 
   const { logMessage } = useLogger();
+  const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, handleCurrentPageChange, currentPage} = useFilter();
+  const [initialized, setInitialized] = useState(false);  
 
-  const {complexFilterValue, setShowFilters, setShowAdditionalFilters, handleContextInit, currentPage} = useFilter();
-  const [initialized, setInitialized] = useState(false);
+
+  const [transactionsData, setTransactionsData] = useState<TransactionEntity[]>([]);
+  const [hasMoreRecords, setHasMoreRecords] = useState(false);
+
   useEffect(() => {
 
     if (setShowFilters)
@@ -62,11 +62,24 @@ const TableTransaction = () => {
 
 }, [initialized, currentPage, pageSize, complexFilterValue]);
 
+
+
 useEffect(() => {
 
-    setTotalPages(Math.ceil(total / pageSize));
+  if (currentPage === 1){
+    setTransactionsData(transactions)
+  }else{
+    setTransactionsData((prevTransactionsData) => [...prevTransactionsData, ...transactions])
+  }  
+  if(transactions.length < pageSize){
 
-},[total]);
+    setHasMoreRecords(false);
+  } else{
+    setHasMoreRecords(true);
+  }
+
+}, [transactions])
+
 
 useEffect(() =>{
   if (linkValue){
@@ -74,30 +87,9 @@ useEffect(() =>{
   }    
 },[linkValue]);
 
-
-const handleDateRangeChange = (dateRangeValue: string[]|null) => {
-  setDateRangeValue(dateRangeValue)
-};
-
-
-  const handleFilterChange = (filterValue: string) => {
-    setFilterValue(filterValue);
-};
 const handleLinkClick = (linkValue: string) => {
   setLinkValue(linkValue);
 };
-
-
-  const handleFilterSubmit = () => {
-    //setCurrentPage(1); 
-    const filterFields = {
-      selectedFields: filterValue || "", 
-      payment_date: dateRangeValue ? dateRangeValue : ["", ""] 
-    };
-    //setComplexFilterValue(filterFields);
-  
-  };
-
   
 
   const columns: ColumnType<TransactionEntity>[] = [
@@ -139,22 +131,15 @@ const handleLinkClick = (linkValue: string) => {
 
     <div>
         <BaseTableNextUI
-            data={transactions}
+            data={transactionsData}
             columns={columns}
-            totalValue={total}
-            //currentPage={currentPage}
             totalPages={totalPages}
             pageSize={pageSize}
             isLoading={isLoading}
             error={error}
-            filterValue={filterValue}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-            onSetDateRangeValue={handleDateRangeChange}
-            //onSetPageNumber={setCurrentPage}
+            hasMoreRecords={hasMoreRecords}
+            infinitePagination={true}
             onSetPageSize={setPageSize}
-            onFilterChange={handleFilterChange}
-            onFilterSubmit={handleFilterSubmit}
             onLinkClick={handleLinkClick}
 
         />

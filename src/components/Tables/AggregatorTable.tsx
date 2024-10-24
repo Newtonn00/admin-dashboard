@@ -98,13 +98,9 @@ return (
             totalPages={totalPages}
             isLoading={isLoading}
             error={error}
-            filterValue={filterValue}
             routeName='/aggregator-card/'
             onSetPageSize={setPageSize}
             onLinkClick={handleLinkClick}
-            isDateRange={true}
-            dateRangeValue={dateRangeValue}
-
 
 
         />

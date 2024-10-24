@@ -112,22 +112,14 @@ const GamesTable: React.FC<GamesTableProps> = ({ customerId, companyId }) => {
             <BaseTableNextUI
                 data={games}
                 columns={columns}
-                //currentPage={currentPage}
                 pageSize={pageSize}
+                totalValue={total}
                 totalPages={totalPages}
                 isLoading={isLoading}
                 error={error}
-                filterValue={filterValue}
                 routeName='/game-card/'
-                //onSetPageNumber={setCurrentPage}
                 onSetPageSize={setPageSize}
-                onFilterChange={handleFilterChange}
-                onFilterSubmit={handleFilterSubmit}
                 onLinkClick={handleLinkClick}
-                isDateRange={true}
-                dateRangeValue={dateRangeValue}
-                onSetDateRangeValue={handleDateRangeChange}
-
             />
         </div>
     );

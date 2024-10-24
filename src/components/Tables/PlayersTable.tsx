@@ -108,22 +108,15 @@ const handleDateRangeChange = (dateRangeValue: string[]|null) => {
         <BaseTableNextUI
             data={data}
             columns={columns}
-            //currentPage={currentPage}
             pageSize={pageSize}
             totalPages={totalPages}
+            totalValue={total}
             isLoading={isLoading}
             error={error}
-            isDateRange={true}
-            filterValue={filterValue}
             routeName='/player-card/'
-            //onSetPageNumber={setCurrentPage}
             onSetPageSize={setPageSize}
-            onFilterChange={handleFilterChange}
-            onFilterSubmit={handleFilterSubmit}
             onLinkClick={handleLinkClick}
-            dateRangeValue={dateRangeValue}
-            onSetDateRangeValue={handleDateRangeChange}
-
+            
         />
 </div>
   );
